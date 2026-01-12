@@ -23,3 +23,5 @@ TestResults.xml
 
 #.claude
 .claude/
+
+todo_api/.env
