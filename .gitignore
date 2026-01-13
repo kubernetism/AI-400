@@ -24,4 +24,5 @@ TestResults.xml
 #.claude
 .claude/
 
-todo_api/.env
+todo_api_project/.env
+03-CRUD_Error_Handling_Tests/todo-api/.env
