@@ -52,7 +52,18 @@ def read_task(task_id: int, session: Session = Depends(get_session)):
         raise HTTPException(status_code=404, detail="Task not found")
     return task
 
-
+@app.update("/tasks/{task_id}")
+def update_task(task_id: int, updated_task: Task, session: Session = Depends(get_session)):
+    task = session.get(Task, task_id)
+    if not task:
+        raise HTTPException(status_code=404, detail="Task not found")
+    task.title = updated_task.title
+    task.description = updated_task.description
+    task.completed = updated_task.completed
+    session.add(task)
+    session.commit()
+    session.refresh(task)
+    return task
 
 # ## Pydantic model for Todo item
 # class TodoItem(BaseModel):
