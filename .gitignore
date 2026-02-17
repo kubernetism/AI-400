@@ -24,5 +24,10 @@ TestResults.xml
 #.claude
 .claude/
 
-todo_api_project/.env
+02_FastAPI_Pytest Intro/.venv
+02_FastAPI_Pytest Intro/.env
+Projects/02_todo_api_project/.env
 03-CRUD_Error_Handling_Tests/todo-api/.env
+03-CRUD_Error_Handling_Tests/todo-api/.venv
+04_Dependency_Injection_SQLModel_Environment_Config/.venv
+
