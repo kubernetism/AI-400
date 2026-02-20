@@ -9,7 +9,7 @@ app = FastAPI(
 @app.get("/")
 async def read_root():
     """Root endpoint."""
-    return {"message": "🎲 Hello World from FastAPI in a Docker container!💌"}
+    return {"message": "🎲 Hello Pakistan from FastAPI in a Docker container!💌"}
 
 @app.get("/application")
 async def read_application():
