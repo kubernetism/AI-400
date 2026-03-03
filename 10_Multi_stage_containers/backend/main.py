@@ -46,7 +46,7 @@ def get_todo(todo_id: int):
 #create a new todo
 @app.post("/todos")
 def create_todo(task: str):
-    new_id = max(todo["id"] for todo in todos) + 1
+    new_id = max((todo["id"] for todo in todos), default=0) + 1
     new_todo = {"id": new_id, "task": task}
     todos.append(new_todo)
     return {"todo": new_todo}

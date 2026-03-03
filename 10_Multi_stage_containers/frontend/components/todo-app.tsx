@@ -4,7 +4,6 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import {
   Plus,
   Trash2,
-  Leaf,
   Clock,
   CheckCheck,
   ListTodo,
@@ -14,6 +13,10 @@ import {
   Loader2,
   Sun,
   Moon,
+  Monitor,
+  Terminal,
+  Zap,
+  X,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import {
@@ -36,6 +39,7 @@ import {
 
 type Priority   = "CRITICAL" | "HIGH" | "MEDIUM" | "LOW";
 type FilterType = "ALL" | "ACTIVE" | "COMPLETED";
+type ThemeMode  = "light" | "dark" | "system";
 type ApiStatus  = "connecting" | "online" | "offline";
 
 interface LocalMeta {
@@ -51,41 +55,73 @@ interface Todo {
   priority: Priority;
 }
 
-// ─── Priority config (earthy tones) ──────────────────────────────────────────
+// ─── Priority config (brutal palette) ─────────────────────────────────────────
 
 const P = {
-  CRITICAL: { label: "Urgent",  color: "var(--color-destructive)", bgClass: "bg-destructive/10", borderClass: "border-destructive/20" },
-  HIGH:     { label: "High",    color: "oklch(0.6 0.12 55)",       bgClass: "bg-amber-500/10",    borderClass: "border-amber-500/20" },
-  MEDIUM:   { label: "Medium",  color: "var(--color-primary)",     bgClass: "bg-primary/10",      borderClass: "border-primary/20" },
-  LOW:      { label: "Low",     color: "oklch(0.6 0.08 150)",      bgClass: "bg-emerald-600/10",  borderClass: "border-emerald-600/20" },
+  CRITICAL: { label: "!! URGENT",  color: "var(--color-destructive)", bgClass: "bg-destructive/10", borderClass: "border-destructive/40" },
+  HIGH:     { label: "! HIGH",     color: "var(--color-primary)",     bgClass: "bg-primary/10",      borderClass: "border-primary/40" },
+  MEDIUM:   { label: "— MEDIUM",   color: "var(--color-secondary)",   bgClass: "bg-secondary/10",    borderClass: "border-secondary/40" },
+  LOW:      { label: "_ LOW",      color: "var(--color-muted-foreground)", bgClass: "bg-muted/30",   borderClass: "border-muted-foreground/30" },
 } satisfies Record<Priority, { label: string; color: string; bgClass: string; borderClass: string }>;
 
 const DEFAULT_META: LocalMeta = { completed: false, priority: "MEDIUM" };
 
-// ─── ThemeToggle ──────────────────────────────────────────────────────────────
+// ─── ThemeToggle (three-way: Light / System / Dark) ───────────────────────────
 
 function ThemeToggle() {
-  const [dark, setDark] = useState(false);
+  const [mode, setMode] = useState<ThemeMode>("system");
 
   useEffect(() => {
-    setDark(document.documentElement.classList.contains("dark"));
+    const stored = localStorage.getItem("theme") as ThemeMode | null;
+    if (stored === "light" || stored === "dark") {
+      setMode(stored);
+    } else {
+      setMode("system");
+    }
   }, []);
 
-  const toggle = () => {
-    const next = !dark;
-    setDark(next);
-    document.documentElement.classList.toggle("dark", next);
-    localStorage.setItem("theme", next ? "dark" : "light");
+  const applyTheme = (newMode: ThemeMode) => {
+    setMode(newMode);
+    localStorage.setItem("theme", newMode);
+
+    if (newMode === "dark") {
+      document.documentElement.classList.add("dark");
+    } else if (newMode === "light") {
+      document.documentElement.classList.remove("dark");
+    } else {
+      // system
+      if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
+        document.documentElement.classList.add("dark");
+      } else {
+        document.documentElement.classList.remove("dark");
+      }
+    }
   };
 
   return (
-    <button
-      onClick={toggle}
-      className="flex h-8 w-8 items-center justify-center rounded-full border border-border bg-card transition-colors hover:bg-muted"
-      aria-label={dark ? "Switch to light mode" : "Switch to dark mode"}
-    >
-      {dark ? <Sun className="h-4 w-4 text-accent" /> : <Moon className="h-4 w-4 text-muted-foreground" />}
-    </button>
+    <div className="flex border-brutal">
+      {([
+        { value: "light" as ThemeMode, icon: Sun, label: "LGT" },
+        { value: "system" as ThemeMode, icon: Monitor, label: "SYS" },
+        { value: "dark" as ThemeMode, icon: Moon, label: "DRK" },
+      ]).map(({ value, icon: Icon, label }) => (
+        <button
+          key={value}
+          onClick={() => applyTheme(value)}
+          className={cn(
+            "flex items-center gap-1 px-2.5 py-1.5 text-[10px] font-bold uppercase tracking-wider transition-colors",
+            mode === value
+              ? "bg-primary text-primary-foreground"
+              : "bg-card text-muted-foreground hover:bg-muted hover:text-foreground",
+            value !== "light" && "border-l-2 border-border",
+          )}
+          aria-label={`Switch to ${value} mode`}
+        >
+          <Icon className="h-3 w-3" />
+          {label}
+        </button>
+      ))}
+    </div>
   );
 }
 
@@ -93,15 +129,15 @@ function ThemeToggle() {
 
 function StatCard({ label, value, icon }: { label: string; value: number; icon: React.ReactNode }) {
   return (
-    <div className="rounded-lg border border-border bg-card p-4 text-center transition-colors">
+    <div className="border-brutal bg-card p-4 text-center shadow-brutal-sm transition-colors hover:shadow-brutal">
       <div className="mb-1.5 flex justify-center text-muted-foreground">{icon}</div>
       <div
-        className="mb-0.5 text-2xl font-bold tracking-tight text-foreground"
-        style={{ fontFamily: "var(--font-fraunces)" }}
+        className="mb-0.5 text-4xl tracking-tight text-foreground"
+        style={{ fontFamily: "var(--font-bebas-neue)" }}
       >
         {value}
       </div>
-      <div className="text-xs font-medium tracking-wide text-muted-foreground">{label}</div>
+      <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">{label}</div>
     </div>
   );
 }
@@ -110,19 +146,21 @@ function StatCard({ label, value, icon }: { label: string; value: number; icon: 
 
 function ApiStatusBadge({ status }: { status: ApiStatus }) {
   const cfg = {
-    connecting: { dotClass: "bg-amber-500",   labelClass: "text-amber-600 dark:text-amber-400",   label: "Connecting" },
-    online:     { dotClass: "bg-emerald-500", labelClass: "text-emerald-600 dark:text-emerald-400", label: "Online" },
-    offline:    { dotClass: "bg-red-500",     labelClass: "text-red-600 dark:text-red-400",         label: "Offline" },
+    connecting: { marker: "~", color: "text-yellow-500" },
+    online:     { marker: "+", color: "text-green-500" },
+    offline:    { marker: "x", color: "text-destructive" },
   }[status];
 
   return (
-    <div className="flex items-center gap-1.5">
+    <div className="flex items-center gap-1.5 font-bold">
       {status === "connecting" ? (
-        <Loader2 className="h-3 w-3 animate-spin text-amber-500" />
+        <Loader2 className="h-3 w-3 animate-spin text-yellow-500" />
       ) : (
-        <span className={cn("h-1.5 w-1.5 rounded-full", cfg.dotClass)} />
+        <span className={cn("text-xs", cfg.color)}>[{cfg.marker}]</span>
       )}
-      <span className={cn("text-xs font-medium", cfg.labelClass)}>{cfg.label}</span>
+      <span className={cn("text-[10px] uppercase tracking-wider", cfg.color)}>
+        {status}
+      </span>
     </div>
   );
 }
@@ -135,7 +173,7 @@ function LoadingSkeleton() {
       {[...Array(4)].map((_, i) => (
         <div
           key={i}
-          className="h-14 animate-pulse rounded-lg border border-border bg-muted/50"
+          className="h-14 animate-pulse border-brutal bg-muted/30"
           style={{ animationDelay: `${i * 80}ms` }}
         />
       ))}
@@ -161,7 +199,7 @@ export default function TodoApp() {
     const tick = () =>
       setClock(
         new Date().toLocaleTimeString("en-US", {
-          hour12: true, hour: "numeric", minute: "2-digit",
+          hour12: false, hour: "2-digit", minute: "2-digit", second: "2-digit",
         })
       );
     tick();
@@ -245,57 +283,57 @@ export default function TodoApp() {
 
   // ─── Render ───────────────────────────────────────────────────────────────
   return (
-    <div className="min-h-screen bg-background leaf-bg">
+    <div className="min-h-screen bg-background brutal-bg scanlines">
       <div className="mx-auto max-w-2xl px-4 py-12">
 
         {/* ── Header ────────────────────────────────────────────────────── */}
         <header className="mb-10">
           <div className="flex items-start justify-between">
             <div>
-              <div className="mb-1 flex items-center gap-2.5">
-                <Leaf className="h-5 w-5 text-primary" />
+              <div className="mb-1 flex items-center gap-3">
+                <Terminal className="h-5 w-5 text-primary" />
                 <h1
-                  className="text-2xl font-bold tracking-tight text-foreground"
-                  style={{ fontFamily: "var(--font-fraunces)" }}
+                  className="text-5xl tracking-tight text-foreground"
+                  style={{ fontFamily: "var(--font-bebas-neue)" }}
                 >
-                  Garden Tasks
+                  TASKS<span className="animate-blink text-primary">_</span>
                 </h1>
               </div>
-              <p className="ml-[30px] text-sm text-muted-foreground">
-                Tend your to-dos with care
+              <p className="ml-8 text-[11px] uppercase tracking-[0.3em] text-muted-foreground">
+                Raw productivity. No fluff.
               </p>
             </div>
 
-            <div className="flex items-center gap-3">
-              <div className="flex flex-col items-end gap-1">
+            <div className="flex flex-col items-end gap-2">
+              <ThemeToggle />
+              <div className="flex items-center gap-3">
                 <ApiStatusBadge status={apiStatus} />
-                <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
                   <Clock className="h-3 w-3" />
-                  <span>{clock}</span>
+                  <span className="tabular-nums">{clock}</span>
                 </div>
               </div>
-              <ThemeToggle />
             </div>
           </div>
 
           {/* API URL bar */}
-          <div className="mt-4 flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2">
+          <div className="mt-5 flex items-center gap-2 border-brutal bg-card px-3 py-2">
             <Server className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
-            <span className="text-xs text-muted-foreground">Backend</span>
+            <span className="text-[10px] uppercase tracking-wider text-muted-foreground">BACKEND</span>
             <span className={cn(
-              "text-xs font-medium",
-              apiStatus === "online" ? "text-emerald-600 dark:text-emerald-400" :
-              apiStatus === "offline" ? "text-red-600 dark:text-red-400" :
-              "text-amber-600 dark:text-amber-400"
+              "text-[10px] font-bold",
+              apiStatus === "online" ? "text-green-500" :
+              apiStatus === "offline" ? "text-destructive" :
+              "text-yellow-500"
             )}>
               {API_URL}
             </span>
-            <span className="ml-auto text-xs text-muted-foreground">
-              {apiStatus === "offline" ? "Unreachable" : apiStatus === "connecting" ? "Probing..." : "Connected"}
+            <span className="ml-auto text-[10px] uppercase tracking-wider text-muted-foreground">
+              {apiStatus === "offline" ? "UNREACHABLE" : apiStatus === "connecting" ? "PROBING..." : "CONNECTED"}
             </span>
           </div>
 
-          <div className="mt-5 h-px bg-border" />
+          <div className="mt-5 h-0.5 bg-border" />
         </header>
 
         {/* ── Stats ─────────────────────────────────────────────────────── */}
@@ -308,43 +346,53 @@ export default function TodoApp() {
         {/* ── Progress bar ───────────────────────────────────────────────── */}
         <div className="mb-7">
           <div className="mb-2 flex items-center justify-between">
-            <span className="text-xs font-medium text-muted-foreground">Progress</span>
+            <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">
+              // PROGRESS
+            </span>
             <span
-              className="text-sm font-bold text-primary"
-              style={{ fontFamily: "var(--font-fraunces)" }}
+              className="text-2xl text-primary"
+              style={{ fontFamily: "var(--font-bebas-neue)" }}
             >
               {progress}%
             </span>
           </div>
-          <div className="h-2 overflow-hidden rounded-full bg-muted">
+          <div className="h-3 border-brutal bg-muted overflow-hidden">
             <div
-              className="h-full rounded-full bg-primary transition-all duration-700 ease-out"
+              className="h-full bg-primary transition-all duration-500 ease-out"
               style={{ width: `${progress}%` }}
             />
           </div>
         </div>
 
         {/* ── Input area ─────────────────────────────────────────────────── */}
-        <div className="mb-6 flex gap-2 rounded-lg border border-border bg-card p-3">
+        <div className="mb-6 flex gap-0 border-brutal-thick shadow-brutal">
+          <div className="flex items-center bg-primary px-3">
+            <Zap className="h-4 w-4 text-primary-foreground" />
+          </div>
           <Input
             ref={inputRef}
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && addTodo()}
-            placeholder="What needs tending?"
-            className="flex-1 border-0 bg-transparent text-sm placeholder:text-muted-foreground/50 focus-visible:ring-0 focus-visible:ring-offset-0"
+            placeholder="ENTER TASK..."
+            className="flex-1 border-0 bg-card px-3 py-3 text-sm uppercase placeholder:text-muted-foreground/40 focus-visible:ring-0 focus-visible:ring-offset-0"
           />
 
           <Select value={priority} onValueChange={(v) => setPriority(v as Priority)}>
             <SelectTrigger
-              className="w-[110px] text-xs font-medium"
+              className="w-[120px] border-0 border-l-2 border-border bg-card text-[10px] font-bold uppercase tracking-wider"
               style={{ color: P[priority].color }}
             >
               <SelectValue />
             </SelectTrigger>
-            <SelectContent className="bg-popover border-border">
+            <SelectContent className="border-brutal bg-popover">
               {(["CRITICAL", "HIGH", "MEDIUM", "LOW"] as Priority[]).map((p) => (
-                <SelectItem key={p} value={p} className="text-xs font-medium cursor-pointer" style={{ color: P[p].color }}>
+                <SelectItem
+                  key={p}
+                  value={p}
+                  className="text-[10px] font-bold uppercase tracking-wider cursor-pointer"
+                  style={{ color: P[p].color }}
+                >
                   {P[p].label}
                 </SelectItem>
               ))}
@@ -354,15 +402,15 @@ export default function TodoApp() {
           <button
             onClick={addTodo}
             disabled={!input.trim()}
-            className="flex items-center gap-1.5 rounded-md bg-primary px-4 text-xs font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-40"
+            className="flex items-center gap-1.5 border-l-2 border-border bg-primary px-5 text-[11px] font-bold uppercase tracking-wider text-primary-foreground transition-colors hover:bg-secondary disabled:cursor-not-allowed disabled:opacity-40"
           >
             <Plus className="h-4 w-4" />
-            Add
+            ADD
           </button>
         </div>
 
         {/* ── Filter tabs ────────────────────────────────────────────────── */}
-        <div className="mb-5 flex items-center gap-1">
+        <div className="mb-5 flex items-center gap-0">
           {(["ALL", "ACTIVE", "COMPLETED"] as FilterType[]).map((f) => {
             const isActive = filter === f;
             return (
@@ -370,18 +418,19 @@ export default function TodoApp() {
                 key={f}
                 onClick={() => setFilter(f)}
                 className={cn(
-                  "rounded-md px-3 py-1.5 text-xs font-medium transition-colors",
+                  "border-2 border-border px-4 py-2 text-[10px] font-bold uppercase tracking-[0.15em] transition-colors",
                   isActive
-                    ? "bg-primary/10 text-primary border border-primary/20"
-                    : "text-muted-foreground hover:text-foreground hover:bg-muted border border-transparent",
+                    ? "bg-primary text-primary-foreground border-primary"
+                    : "bg-card text-muted-foreground hover:text-foreground hover:bg-muted",
+                  f !== "ALL" && "-ml-0.5",
                 )}
               >
-                {f.charAt(0) + f.slice(1).toLowerCase()}
+                {f}
               </button>
             );
           })}
-          <span className="ml-auto text-xs text-muted-foreground">
-            {visible.length} {visible.length === 1 ? "task" : "tasks"}
+          <span className="ml-auto text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+            [{visible.length}] {visible.length === 1 ? "TASK" : "TASKS"}
           </span>
         </div>
 
@@ -391,18 +440,18 @@ export default function TodoApp() {
           {loading && <LoadingSkeleton />}
 
           {!loading && apiStatus === "offline" && backendTodos.length === 0 && (
-            <div className="rounded-lg border border-destructive/20 bg-destructive/5 py-12 text-center">
-              <WifiOff className="mx-auto mb-3 h-6 w-6 text-destructive/40" />
-              <p className="text-sm text-muted-foreground">Backend unreachable</p>
-              <p className="mt-1 text-xs text-destructive/60">{API_URL}</p>
+            <div className="border-2 border-destructive bg-destructive/5 py-12 text-center">
+              <WifiOff className="mx-auto mb-3 h-6 w-6 text-destructive/60" />
+              <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">BACKEND UNREACHABLE</p>
+              <p className="mt-1 text-[10px] text-destructive/60">{API_URL}</p>
             </div>
           )}
 
           {!loading && !visible.length && (apiStatus !== "offline" || backendTodos.length > 0) && (
-            <div className="rounded-lg border border-border bg-card py-16 text-center">
-              <Leaf className="mx-auto mb-3 h-8 w-8 text-primary/20" />
-              <p className="text-sm text-muted-foreground">
-                {filter === "COMPLETED" ? "Nothing completed yet" : filter === "ACTIVE" ? "All done!" : "Plant your first task"}
+            <div className="border-brutal bg-card py-16 text-center">
+              <Terminal className="mx-auto mb-3 h-8 w-8 text-primary/30" />
+              <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                {filter === "COMPLETED" ? "NOTHING COMPLETED" : filter === "ACTIVE" ? "ALL TASKS DONE_" : "NO TASKS. ADD ONE_"}
               </p>
             </div>
           )}
@@ -421,11 +470,11 @@ export default function TodoApp() {
         {/* ── Footer ────────────────────────────────────────────────────── */}
         {!loading && todos.length > 0 && (
           <div className="mt-8 flex items-center gap-4">
-            <div className="h-px flex-1 bg-border" />
-            <span className="text-xs text-muted-foreground">
-              {activeCount} {activeCount === 1 ? "task" : "tasks"} remaining
+            <div className="h-0.5 flex-1 bg-border" />
+            <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">
+              {activeCount} {activeCount === 1 ? "TASK" : "TASKS"} REMAINING
             </span>
-            <div className="h-px flex-1 bg-border" />
+            <div className="h-0.5 flex-1 bg-border" />
           </div>
         )}
       </div>
@@ -448,26 +497,24 @@ function TodoItem({
   return (
     <div
       className={cn(
-        "group flex items-center gap-3 rounded-lg border border-border bg-card p-3 transition-colors hover:border-primary/20 animate-fade-in-up",
+        "group flex items-center gap-3 border-brutal bg-card p-3 transition-all hover:shadow-brutal-sm animate-fade-in-up",
         `delay-${Math.min(index, 9)}`,
-        todo.completed && "opacity-60",
+        todo.completed && "opacity-50",
       )}
     >
       {/* Checkbox */}
       <button
         onClick={() => onToggle(todo.id)}
         className={cn(
-          "flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full border-2 transition-colors",
+          "flex h-5 w-5 flex-shrink-0 items-center justify-center border-2 transition-colors",
           todo.completed
-            ? "border-primary bg-primary/15"
-            : "border-muted-foreground/30 hover:border-primary/60",
+            ? "border-primary bg-primary/20 text-primary"
+            : "border-muted-foreground/40 hover:border-primary",
         )}
         aria-label={todo.completed ? "Mark incomplete" : "Mark complete"}
       >
         {todo.completed && (
-          <svg className="h-2.5 w-2.5" viewBox="0 0 10 10" fill="none">
-            <path d="M1.5 5l2.5 2.5 5-5" stroke="currentColor" className="text-primary" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
+          <X className="h-3 w-3" strokeWidth={3} />
         )}
       </button>
 
@@ -482,14 +529,14 @@ function TodoItem({
       </span>
 
       {/* Backend ID */}
-      <span className="flex-shrink-0 text-[10px] text-muted-foreground/40">
+      <span className="flex-shrink-0 text-[10px] font-bold text-muted-foreground/30">
         #{todo.backendId}
       </span>
 
       {/* Priority badge */}
       <span
         className={cn(
-          "flex-shrink-0 rounded-md border px-2 py-0.5 text-[10px] font-medium",
+          "flex-shrink-0 border-2 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider",
           pcfg.bgClass,
           pcfg.borderClass,
         )}
@@ -501,7 +548,7 @@ function TodoItem({
       {/* Delete */}
       <button
         onClick={() => onDelete(todo.id)}
-        className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-md text-muted-foreground/40 opacity-0 transition-all hover:bg-destructive/10 hover:text-destructive group-hover:opacity-100"
+        className="flex h-6 w-6 flex-shrink-0 items-center justify-center border-2 border-transparent text-muted-foreground/30 opacity-0 transition-all hover:border-destructive hover:bg-destructive/10 hover:text-destructive group-hover:opacity-100"
         aria-label="Delete task"
       >
         <Trash2 className="h-3.5 w-3.5" />

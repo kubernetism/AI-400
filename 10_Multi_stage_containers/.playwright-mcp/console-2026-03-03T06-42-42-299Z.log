@@ -1,0 +1,2 @@
+[   59111ms] [ERROR] Access to fetch at 'http://localhost:8000/todos?task=this%20is%20todo' from origin 'http://localhost:3000' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ http://localhost:3000/:0
+[   59112ms] [ERROR] Failed to load resource: net::ERR_FAILED @ http://localhost:8000/todos?task=this%20is%20todo:0
