@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 
 # === Stage 1: Builder — install uv and dependencies ===
-FROM python:3.11-slim AS builder
+FROM python:3.11.13-slim AS builder
 
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
@@ -18,7 +18,7 @@ COPY pyproject.toml uv.lock ./
 RUN uv sync --frozen --no-dev --no-install-project
 
 # === Stage 2: Runtime — minimal image ===
-FROM python:3.11-slim AS production
+FROM python:3.11.13-slim AS production
 
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
