@@ -1,0 +1,31 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"rbac.authorization.k8s.io/v1","kind":"Role","metadata":{"annotations":{},"name":"fundtransfer-deployer","namespace":"fundtransfer"},"rules":[{"apiGroups":["apps"],"resources":["deployments","replicasets"],"verbs":["get","list","create","update","patch"]},{"apiGroups":[""],"resources":["pods","services"],"verbs":["get","list"]}]}
+  creationTimestamp: "2026-03-06T11:27:51Z"
+  name: fundtransfer-deployer
+  namespace: fundtransfer
+  resourceVersion: "74767"
+  uid: ce47b21a-483c-4a92-a79f-65bad7e1de1b
+rules:
+- apiGroups:
+  - apps
+  resources:
+  - deployments
+  - replicasets
+  verbs:
+  - get
+  - list
+  - create
+  - update
+  - patch
+- apiGroups:
+  - ""
+  resources:
+  - pods
+  - services
+  verbs:
+  - get
+  - list
