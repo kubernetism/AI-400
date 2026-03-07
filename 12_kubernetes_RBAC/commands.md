@@ -23,3 +23,5 @@ kubectl auth can-i create deployments -n fundtransfer --as system:serviceaccount
 kubectl auth can-i create deployments -n fundtransfer --as system:serviceaccount:fundtransfer:deployer
 terminal Response = no
 
+kubectl auth can-i create deployments -n fundtransfer --as system:serviceaccount:fundtransfer:deployer-sa
+yes

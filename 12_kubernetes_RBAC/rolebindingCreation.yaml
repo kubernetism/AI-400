@@ -1,0 +1,19 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"rbac.authorization.k8s.io/v1","kind":"RoleBinding","metadata":{"annotations":{},"name":"deployer-rolebinding","namespace":"fundtransfer"},"roleRef":{"apiGroup":"rbac.authorization.k8s.io","kind":"Role","name":"deployer-role"},"subjects":[{"kind":"ServiceAccount","name":"deployer-sa","namespace":"fundtransfer"}]}
+  creationTimestamp: "2026-03-07T07:31:56Z"
+  name: deployer-rolebinding
+  namespace: fundtransfer
+  resourceVersion: "103382"
+  uid: 41a0faaa-20c5-4469-89a7-3604aecb953b
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: deployer-role
+subjects:
+- kind: ServiceAccount
+  name: deployer-sa
+  namespace: fundtransfer
