@@ -25,3 +25,12 @@ terminal Response = no
 
 kubectl auth can-i create deployments -n fundtransfer --as system:serviceaccount:fundtransfer:deployer-sa
 yes
+
+kubectl create role --help
+
+kubectl run nginx-new --image=nginx:alpine --restart=Never --port=80 (--port=80 means internal port)
+kubectl get pods -w
+kubectl port-forward nginx 8080:80  (External Port: Internal Port)
+kubectl run nginx-new --image=nginx:alpine --restart=Never --port=80 -o yaml > nginx-pods.yaml
+kubectl run nginx-new --image=nginx:alpine --restart=Never --port=80 --dry-run=client -o yaml > nginx-pods.yam
+
