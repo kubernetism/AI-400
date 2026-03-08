@@ -34,4 +34,4 @@ kubectl port-forward nginx 8080:80  (External Port: Internal Port)
 kubectl run nginx-new --image=nginx:alpine --restart=Never --port=80 -o yaml > nginx-pods.yaml
 kubectl run nginx-new --image=nginx:alpine --restart=Never --port=80 --dry-run=client -o yaml > nginx-pods.yam
 docker run -d -p 8000:8000 safdaralishah/fastapi-app:latest
- 1972  docker exec -it container-id /bin/bash
+docker exec -it container-id /bin/bash
