@@ -6,8 +6,10 @@
    - kubectl logs bb
    - kubectl run bb2 --image=busybox --restart=Never -- /bin/sh -c 'echo helloworld'
    - kubectl logs bb2
-   -  2045  k run bb --image=busybox -it --rm  --restart=Never  -- /bin/sh -c "echo start class && echo EverythingISGood && echo PakistanZindabad && sleep 14 && echo Finished-Job"
+   - k run bb --image=busybox -it --rm  --restart=Never  -- /bin/sh -c "echo start class && echo EverythingISGood && echo PakistanZindabad && sleep 14 && echo Finished-Job"
 ## Getting Fastapi Pod Ip
+      Running command and saving value in varible in Shell Programming.
    -  FASTAPI_IP=$(kubectl get pod fastapi -o jsonpath='{.status.podIP}')
    -  echo $FASTAPI_IP
+   -  k run bb --image=busybox -it --restart=Never -- /bin/sh -c 'wget -qO- localhost:8000'
    -  
