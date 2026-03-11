@@ -1,0 +1,40 @@
+Describe fields and structure of various resources.
+
+ This command describes the fields associated with each supported API resource. Fields are identified via a simple JSONPath identifier:
+
+        <type>.<fieldName>[.<fieldName>]
+        
+ Information about each field is retrieved from the server in OpenAPI format.
+
+Use "kubectl api-resources" for a complete list of supported resources.
+
+Examples:
+  # Get the documentation of the resource and its fields
+  kubectl explain pods
+  
+  # Get all the fields in the resource
+  kubectl explain pods --recursive
+  
+  # Get the explanation for deployment in supported api versions
+  kubectl explain deployments --api-version=apps/v1
+  
+  # Get the documentation of a specific field of a resource
+  kubectl explain pods.spec.containers
+  
+  # Get the documentation of resources in different format
+  kubectl explain deployment --output=plaintext-openapiv2
+
+Options:
+    --api-version='':
+	Get different explanations for particular API version (API group/version)
+
+    -o, --output='plaintext':
+	Format in which to render the schema (plaintext, plaintext-openapiv2)
+
+    --recursive=false:
+	Print the fields of fields (Currently only 1 level deep)
+
+Usage:
+  kubectl explain TYPE [--recursive=FALSE|TRUE] [--api-version=api-version-group] [-o|--output=plaintext|plaintext-openapiv2] [options]
+
+Use "kubectl options" for a list of global command-line options (applies to all commands).
