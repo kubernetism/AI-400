@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    run: fastapi-dev
+  name: fastapi-dev
+spec:
+  containers:
+  - image: safdaralishah/fastapi-app:latest
+    name: fastapi-dev
+    resources: {}
+  dnsPolicy: ClusterFirst
+  restartPolicy: Never
+status: {}

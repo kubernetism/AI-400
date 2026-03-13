@@ -1,0 +1,1000 @@
+ 1130  c
+ 1131  hisroy
+ 1132  history
+ 1133  c
+ 1134  k get sa
+ 1135  k get sa -n fundtransfer
+ 1136  kubectl auth can-i create deployments -n fundtransfer -as system:serviceaccount:fundtransfer:deployer
+ 1137  kubectl auth can-i create deployments -n fundtransfer --as system:serviceaccount:fundtransfer:deployer
+ 1138  k get rolebinding -n fundtransfer
+ 1139  kubectl auth can-i create deployments -n fundtransfer --as system:serviceaccount:fundtransfer:deployer-binding
+ 1140  kubectl auth can-i create deployments -n fundtransfer --as system:serviceaccount:fundtransfer:deployer
+ 1141  k get sa
+ 1142  k get sa -n fundtransfer
+ 1143  k get rolebinding -n fundtransfer
+ 1144  k delete rolebinding -n fundtransfer
+ 1145  k delete rolebinding deployer-binding -n fundtransfer
+ 1146  k get rolebinding -n fundtransfer
+ 1147  l
+ 1148  k apply rolebinding -f rolebinding.yaml -n fundtransfer --dry-run=client
+ 1149  k apply -f rolebinding.yaml -n fundtransfer --dry-run=client
+ 1150  k apply -f rolebindings.yaml -n fundtransfer --dry-run=client
+ 1151  k apply -f rolebindings.yaml -n fundtransfer 
+ 1152  k get rolebindings -n fundtransfer
+ 1153  kubectl auth can-i create deployments -n fundtransfer --as system:serviceaccount:fundtransfer:deployer
+ 1154  k get role
+ 1155  k get role -n fundtransfer
+ 1156  kubectl auth can-i create deployments -n fundtransfer --as system:serviceaccount:fundtransfer:fundtranfer-deployer
+ 1157  k get sa -n fundtransfer
+ 1158  kubectl auth can-i create deployments -n fundtransfer --as system:serviceaccount:deployer:fundtranfer-deployer
+ 1159  k get sa
+ 1160  k get sa -n namespace
+ 1161  k get sa -n fundtransfer
+ 1162  k get rolebindings
+ 1163  k get rolebindings -n fundtransfer
+ 1164  k delete rolebindings deployer-binding -n fundtransfer
+ 1165  k get role -n fundtransfer
+ 1166  k delete role fundtransfer-deployer -n fundtransfer
+ 1167  k get role
+ 1168  k get role -n namespace
+ 1169  k get role -n fundtransfer
+ 1170  k apply -f role.yaml -n fundtransfer
+ 1171  k get sa -n fundtransfer
+ 1172  k delete sa deployer -n fundtransfer
+ 1173  k get role -n fundtranfer
+ 1174  c
+ 1175  kubectl get role -n fundtransfer
+ 1176  l
+ 1177  kubectl apply -f serviceaccount.yaml -n fundtransfer
+ 1178  k get sa -n fundtransfer
+ 1179  kubectl apply -f rolebindings.yaml -n fundtransfer
+ 1180  kubectl get rolebindings
+ 1181  kubectl get rolebindings -n fundtransfer
+ 1182  kubectl auth can-i create deployments -n fundtransfer --as system:serviceaccount:fundtransfer:deployer-sa
+ 1183  claude
+ 1184  cd Documents/github/AI-400/
+ 1185  ls
+ 1186  cd 12_kubernetes_RBAC/
+ 1187  ls
+ 1188  k get role
+ 1189  k get role -n namespace
+ 1190  k get role -n fundtransfer
+ 1191  k get rolebinding -n fundtransfer
+ 1192  c
+ 1193  kgp
+ 1194  kgp -n fundtransfer
+ 1195  c
+ 1196  k get role -n fundtransfer
+ 1197  k get delete deployer-role -n fundtransfer
+ 1198  k get delete role deployer-role -n fundtransfer
+ 1199  k delete role deployer-role -n fundtransfer
+ 1200  k get as -n fundtransfer
+ 1201  k get accountservices -n fundtransfer
+ 1202  k get accountservice -n fundtransfer
+ 1203  k get as
+ 1204  k --api-resources
+ 1205  k -api-resources
+ 1206  k api-resources
+ 1207  k get sa -n fundtransfer
+ 1208  k delete sa deployer-sa -n fundtransfer
+ 1209  k get rolebinding -n fundtransfer
+ 1210  k delete deployer-rolebinding -n fundtransfer
+ 1211  k delete rolebinding deployer-rolebinding -n fundtransfer
+ 1212  c
+ 1213  k get sa -n fundtransfer
+ 1214  k get role -n fundtransfer
+ 1215  k get rolebinding -n fundtransfer
+ 1216  ll
+ 1217  l
+ 1218  kubectl apply -f role.yaml -n fundtracfer -o yaml > roleCreation.yaml
+ 1219  kubectl apply -f role.yaml -n fundtransfer -o yaml > roleCreation.yaml
+ 1220  cat roleCreation.yaml 
+ 1221  k get role -n fundtransfer
+ 1222  c
+ 1223  k apply -f serviceaccount.yaml -n fundtransfer -o yaml > serviceAccountCreation.yaml
+ 1224  k get sa -n fundtransfer
+ 1225  k apply -f rolebindings.yaml -o yaml > rolebindingCreation.yaml
+ 1226  k get rolebinding -n fundtransfer
+ 1227  c
+ 1228  k get role -n fundtransfer
+ 1229  k get sa -n fundtransfer
+ 1230  k get rolebinding -n fundtransfer
+ 1231  k auth can-i create deployments -n fundtransfer --as system:serviceaccount:fundtransfer:deployer-sa
+ 1232  k auth can-i delete deployments -n fundtransfer --as system:serviceaccount:fundtransfer:deployer-sa
+ 1233  kubectl auth can-i create deployments -n fundtransfer --as system:serviceaccount:fundtransfer:deployer-sa
+ 1234  e
+ 1235  ls
+ 1236  l
+ 1237  /
+ 1238  c
+ 1239  k
+ 1240  kgp
+ 1241  c
+ 1242  cd Documents/github/aci
+ 1243  ls
+ 1244  claude
+ 1245  code .
+ 1246  source /home/safdaralishah/Documents/github/AI-400/Projects/02_todo_api_project/.venv/bin/activate
+ 1247  e
+ 1248  ll
+ 1249  uv run uvicorn main:app --reload
+ 1250  source .venv/bin/activate
+ 1251  uv run uvicorn main:app --reload
+ 1252  uv add "fastapi[standard]"
+ 1253  uv sync
+ 1254  uv run uvicorn app:main --reload
+ 1255  uv run uvicorn main:app  --reload
+ 1256  c
+ 1257  uv sync
+ 1258  c
+ 1259  uv run uvicorn main:app  --reload
+ 1260  c
+ 1261  e
+ 1262  source /home/safdaralishah/Documents/github/AI-400/Projects/02_todo_api_project/.venv/bin/activate
+ 1263  docker rmi 
+ 1264  docker rmi todo-backend
+ 1265  docker images
+ 1266  docker rmi safdaralishah/todo-backend:latest
+ 1267  docker ps
+ 1268  docker ps | grep 94717f49d1ad
+ 1269  docker ps -a | grep 94717f49d1ad
+ 1270  docker stop 94717f49d1ad
+ 1271  docker rm 94717f49d1ad
+ 1272  docker ps -a
+ 1273  docker rmi safdaralishah/todo-backend:latest
+ 1274  docker ps -a
+ 1275  docker ps -a | grep 94717f49d1ad
+ 1276  c
+ 1277  k api-services
+ 1278  k api-resources
+ 1279  k api-resources | grep ture
+ 1280  k api-resources | grep true
+ 1281  k create role --help
+ 1282  c
+ 1283  cd Documents/github/AI-400/12_kubernetes_RBAC/
+ 1284  ls
+ 1285  k create role --help >role.manpages.txt
+ 1286  cat role.manpages.txt 
+ 1287  c
+ 1288  ls
+ 1289  clear
+ 1290  kubectl --l
+ 1291  kubectl create role --help
+ 1292  c
+ 1293  kubectl run nginx-new --image=nginx:alpine --restart=Never --port=80
+ 1294  kgp
+ 1295  kubectl run nginx-new --image=nginx:alpine --restart=Never --port=80 > nginx-pods.yaml
+ 1296  kubectl run nginx-new --image=nginx:alpine --restart=Never --port=80 -o yaml > nginx-pods.yaml
+ 1297  kubectl run nginx-new --image=nginx:alpine --restart=Never --port=80 --dry-run=client -o yaml > nginx-pods.yaml
+ 1298  cat nginx-pods.yaml 
+ 1299  c
+ 1300  cd ..
+ 1301  ls
+ 1302  cd 10
+ 1303  cd 10_Multi_stage_containers/
+ 1304  ls
+ 1305  cd backend/
+ 1306  ls
+ 1307  cat Dockerfile 
+ 1308  c
+ 1309  docker build -t backendTodoApp:safdaralishah/backendTodoApp .
+ 1310  c
+ 1311  docker build -t safdaralishah/todo-backend .
+ 1312  d images
+ 1313  docker push safdaralishah/todo-backend
+ 1314  docker login
+ 1315  docker push safdaralishah/todo-backend
+ 1316  docker run safdaralishah/todo-backend
+ 1317  c
+ 1318  ll
+ 1319  uv run uvicorn main:app --reload
+ 1320  nano Dockerfile 
+ 1321  c
+ 1322  nano Dockerfile.dev
+ 1323  ls
+ 1324  docker build -t safdaralishah/todo-backend Dockerfile.dev
+ 1325  ls
+ 1326  cd Documents/github/aci
+ 1327  ls
+ 1328  c
+ 1329  claude
+ 1330  cd Documents/github/AI-400/
+ 1331  ls
+ 1332  12_kubernetes_RBAC/
+ 1333  cd 12_kubernetes_RBAC/
+ 1334  ls
+ 1335  cd ..
+ 1336  ls
+ 1337  ls 07_8_Containerzing_Application_with_docker/
+ 1338  cd 07_8_Containerzing_Application_with_docker/CloudNativeFastAPIApplication/
+ 1339  ls
+ 1340  cat main.py 
+ 1341  cd ..
+ 1342  ls
+ 1343  c
+ 1344  l
+ 1345  cd FastAPIApplication/
+ 1346  ls
+ 1347  cat Dockerfile 
+ 1348  c
+ 1349  docker images
+ 1350  docker rmi moby/buildkit:buildx-stable-1
+ 1351  docker images
+ 1352  c
+ 1353  docker images
+ 1354  docker rmi nginx:alpine
+ 1355  docker rm 76ccf70d5771
+ 1356  docker rmi nginx:alpine
+ 1357  c
+ 1358  docker images
+ 1359  docker rmi nginx:latest
+ 1360  s
+ 1361  c
+ 1362  docker images
+ 1363  c
+ 1364  k
+ 1365  c
+ 1366  ls
+ 1367  uvicorn run main:app --reload
+ 1368  uvicorn main:app --reload
+ 1369  clear
+ 1370  ls
+ 1371  ll
+ 1372  source .venv/bin/activate
+ 1373  uvicorn main:app --reload
+ 1374  clear
+ 1375  uv run uvicorn main:app --reload
+ 1376  uv sync
+ 1377  clear
+ 1378  uv run
+ 1379  e
+ 1380  cd /home/safdaralishah/Documents/github/AI-400/07_8_Containerzing_Application_with_docker/FastAPIApplication
+ 1381  clear
+ 1382  ls
+ 1383  history 
+ 1384  c
+ 1385  d build -t safdaralishah/fastapi-app .
+ 1386  docker images
+ 1387  c
+ 1388  d images
+ 1389  docker run safdaralishah/fastapi-app:lastest
+ 1390  docker run safdaralishah/fastapi-app:latest
+ 1391  docker run safdaralishah/fastapi-app:latest -p 8008:8000
+ 1392  c
+ 1393  docker run -d -p 8008:8000
+ 1394  docker run -d -p 8008:8000 safdaralishah/fastapi-app:latest
+ 1395  docker logs ea72459ebb5ce8a8b2de3a543b8806b2518395217156486ba13072fd45d5c40d
+ 1396  c
+ 1397  docker exec -it ea72459ebb5ce8a8b2de3a543b8806b2518395217156486ba13072fd45d5c40d /bin/bash
+ 1398  docker ps
+ 1399  docker stop ea72459ebb5ce8a8b2de3a543b8806b2518395217156486ba13072fd45d5c40d
+ 1400  docker ps | grep safdaralishah
+ 1401  clear
+ 1402  docker run -d -p 8000:8000 safdaralishah/fastapi-app:latest
+ 1403  docker logs 2a21d17
+ 1404  docker exec -it 2a21d17 /bin/bash
+ 1405  docker ps
+ 1406  c
+ 1407  docker ps | grep safdaralishah
+ 1408  docker stop 2a21d17
+ 1409  clear
+ 1410  docker ps | grep safdaralishah
+ 1411  clear
+ 1412  docker images | grep safdaralishah
+ 1413  clear
+ 1414  exit
+ 1415  uv run
+ 1416  source .venv/bin/activate
+ 1417  uv run uvicorn main:app --reload
+ 1418  c
+ 1419  d build safdaralishah/fastapi .
+ 1420  d run build safdaralishah/fastapi .
+ 1421  pwd
+ 1422  uv init fastapi-backend
+ 1423  cd fastapi-backend/
+ 1424  ls
+ 1425  sudo apt upgrade
+ 1426  history
+ 1427  c
+ 1428  k run nginx --image=nginx:alpine --restart=Never --port=80
+ 1429  kgp -w
+ 1430  kgp -o yaml
+ 1431  kgp -o yaml > kubeclt-get-pods-output.txt
+ 1432  nano kuberclt-get-pods-output.txt
+ 1433  kgp -o yaml > kgp-out.txt
+ 1434  nano kgp-out.txt 
+ 1435  c
+ 1436  kgp
+ 1437  kubectl get ns
+ 1438  ls
+ 1439  c
+ 1440  kubectl get pods
+ 1441  kubectl delete pod nginx-new
+ 1442  kgp
+ 1443  c
+ 1444  kgp
+ 1445  k port-forward nginx 8080:80
+ 1446  k run nginx --image=nginx:alpine --restart=Never --port=80 --dry-run=client
+ 1447  c
+ 1448  kgp
+ 1449  kubectl delete pod nginx
+ 1450  c
+ 1451  kgp
+ 1452  c
+ 1453  e
+ 1454  k logs nginx
+ 1455  k logs nginx -w
+ 1456  k events nginx
+ 1457  c
+ 1458  history
+ 1459  docker ps
+ 1460  docker stop bd7948de7544
+ 1461  docker rm bd7948de7544
+ 1462  docker images
+ 1463  clear
+ 1464  docker rmi bd7948de7544
+ 1465  docker images
+ 1466  docker rmi fastapiapplication-api:latest
+ 1467  docker iamges
+ 1468  docker images
+ 1469  c
+ 1470  history
+ 1471  ls
+ 1472  ll
+ 1473  c
+ 1474  history
+ 1475  kubernetes
+ 1476  kubernetescontrol
+ 1477  nano .bashrc
+ 1478  source .bashrc
+ 1479  kubernetescontrol
+ 1480  kubernetescontrol get pods
+ 1481  k get pods
+ 1482  kgp
+ 1483  cleaer
+ 1484  clear
+ 1485  c
+ 1486  e
+ 1487  docker images
+ 1488  c
+ 1489  kgp -w
+ 1490  kubectl get pods
+ 1491  kubectl get pods -w
+ 1492  c
+ 1493  kubectl logs fastapi-app
+ 1494  kubectl logs fastapi-app -w
+ 1495  kubectl events fastapi-app 
+ 1496  c
+ 1497  docker images
+ 1498  ls
+ 1499  docker save 
+ 1500  c
+ 1501  docker save -o fastapi-app.tar safdaralishah/fastapi-app:latest
+ 1502  ls
+ 1503  open .
+ 1504  c
+ 1505  kgp
+ 1506  kubectl get pods fastapi-app
+ 1507  kubectl get pods | grep fastapi-app
+ 1508  kubeclt describe pods fastapi-app
+ 1509  kubectl describe pods fastapi-app
+ 1510  c
+ 1511  kubectl describe pods fastapi-app
+ 1512  c
+ 1513  kubectl describe pods fastapi-app | grep "safdaralishah"
+ 1514  kubectl describe pods fastapi-app | grep "image"
+ 1515  kubectl logs fastapi-app
+ 1516  kubectl exec -it fastapi-app /bin/bash
+ 1517  kubectl exec -it fastapi-app /bin/sh
+ 1518  kubectl exec -it fastapi-app -- /bin/sh
+ 1519  kubectl get pods
+ 1520  kubectl get pods --w
+ 1521  kubectl get pods -w
+ 1522  c
+ 1523  kubectl stop pod fastapi-app
+ 1524  kubectl delte pod fastapi-app
+ 1525  kubectl delete pod fastapi-app
+ 1526  kgp
+ 1527  clear
+ 1528  kgp
+ 1529  kubectl get pods -w
+ 1530  clear
+ 1531  e
+ 1532  nano
+ 1533  e
+ 1534  d
+ 1535  docker
+ 1536  c
+ 1537  docker -version
+ 1538  docker --version
+ 1539  docker images
+ 1540  docker rmi nginx:alpine
+ 1541  c
+ 1542  d images
+ 1543  docker run -d -p 8000:8000  safdaralishah/fastapi-app:lastest
+ 1544  docker run -d -p 8000:8000  safdaralishah/fastapi-app:latest
+ 1545  docker logs d3df48
+ 1546  c
+ 1547  docker ps
+ 1548  c
+ 1549  docker ps | grep safdaralishah
+ 1550  d exec -it d3df489ae246 /bash/bin
+ 1551  d exec -it d3df489ae246 /bin/bash
+ 1552  docker ps 
+ 1553  c
+ 1554  docker ps | grep safdaralishah
+ 1555  docker stop d3df489ae246
+ 1556  docker ps | grep safdaralishah
+ 1557  docker ps -a
+ 1558  docker rm container 2a21d17c288c,ea72459ebb5c,dc49d09b8209,f799622e88cb
+ 1559  docker rm 2a21d17c288c,ea72459ebb5c,dc49d09b8209,f799622e88cb
+ 1560  docker rm 2a21d17c288c ea72459ebb5c dc49d09b8209 f799622e88cb
+ 1561  docker ps -a | grep safdaralishah
+ 1562  docker rm d3df489ae246
+ 1563  docker ps -a | grep safdaralishah
+ 1564  c
+ 1565  docker images
+ 1566  c
+ 1567  docker login
+ 1568  c
+ 1569  docker push safdaralishah/fastapi-app:latest
+ 1570  c
+ 1571  docker ps -a | grep safaralishah
+ 1572  docker images
+ 1573  c
+ 1574  kubectl run fastapi-app --image:safdaralishah/fastapi-app:latest --restart:Never --port=80
+ 1575  kubectl run fastapi-app --image:fastapi-app:latest --restart:Never --port=80
+ 1576  kubectl run fastapi-app --image:fastapi-app --restart:Never --port=80
+ 1577  kubectl run fastapi-app --image:safdaralishah/fastapi-app --restart:Never --port=80
+ 1578  c
+ 1579  kubectl run fastapi-app --image=safdaralishah/fastapi-app --restart:Never --port=80
+ 1580  kubectl run fastapi-app --image=safdaralishah/fastapi-app --restart=Never --port=80
+ 1581  kubectl port-forward fastapi-app 8080:8000
+ 1582  kubeclt get pods
+ 1583  kubectl get pods
+ 1584  c
+ 1585  e
+ 1586  claude
+ 1587  clear
+ 1588  cd Documents/github/aci
+ 1589  ls
+ 1590  claude
+ 1591  e
+ 1592  k
+ 1593  c
+ 1594  e
+ 1595  kubectl exec -it bb -- /bin/bash
+ 1596  k run nginx --image=nginx:latest --restart=Never
+ 1597  k exec -it nginx -- /bin/sh
+ 1598  c
+ 1599  k exec -it nginx -- /bin/sh
+ 1600  k cluster-ingo
+ 1601  k cluster-info
+ 1602  k create ns safdaralishah
+ 1603  k delete ns safdaralishah
+ 1604  c
+ 1605  k run --help
+ 1606  cd Documents/github/AI-400/13_Kuberneters/
+ 1607  k run --help > run.help.md
+ 1608  cat run.help.md 
+ 1609  c
+ 1610  kubectl run bb --image=busybox --restart=Never -- env
+ 1611  k get pods -w
+ 1612  c
+ 1613  kubectl run bb --image=busybox --restart=Never -- env
+ 1614  kubectl exec -it bb -- env
+ 1615  kubectl get pods
+ 1616  kubectl exec -it nginx -- env
+ 1617  c
+ 1618  kubectl get pods
+ 1619  kubectl logs bb
+ 1620  kubectl run bb2 --image=busybox --restart=Never -- /bin/sh -c 'echo helloworld'
+ 1621  kubectl logs bb2
+ 1622  kubectl get pods -w
+ 1623  kubectl logs bb2
+ 1624  c
+ 1625  kubectl run bb3 --image=busybox --restart=Never -- /bin/sh -c 'ls -la'
+ 1626  kubectl got pods -w
+ 1627  kubectl get pods -w
+ 1628  clear
+ 1629  kubeclt lods bb3
+ 1630  kubectl lods bb3
+ 1631  kubectl logs bb3
+ 1632  c
+ 1633  ls
+ 1634  clear
+ 1635  e
+ 1636  kubectl get pods
+ 1637  kubectl delete pods bb bb2 bb3 nginx
+ 1638  c
+ 1639  e
+ 1640  cd
+ 1641  c
+ 1642  nano .bashrc
+ 1643  source .bashrc
+ 1644  kgns
+ 1645  kgps
+ 1646  kdp bb
+ 1647  kgps
+ 1648  kdps bb bb2 bb22
+ 1649  kgns
+ 1650  nano .bashrc
+ 1651  source .bashrc
+ 1652  kr
+ 1653  kr --help
+ 1654  k
+ 1655  kcns safdar
+ 1656  kgns
+ 1657  kdns
+ 1658  nano .bashrc
+ 1659  source .bashrc 
+ 1660  kdns safdar
+ 1661  c
+ 1662  e
+ 1663  cd
+ 1664  c
+ 1665  nano .bashrc
+ 1666  source .bashrc
+ 1667  kpgs
+ 1668  kgps
+ 1669  kgp
+ 1670  c
+ 1671  e
+ 1672  cd Documents/github/AI-400/13_Kuberneters/
+ 1673  ls
+ 1674  ll
+ 1675  cat cammands
+ 1676  cat commands.md 
+ 1677  c
+ 1678  kubectl get pds
+ 1679  kgp
+ 1680  clear
+ 1681  k run bb1 --image=busybox --restart=Never -- /bin/sh -c "sleep 1 && echo ContainerStart class && sleep 5 && echoFastapi-app-dev"
+ 1682  k logs bb2
+ 1683  kgp
+ 1684  k logs bb1
+ 1685  k delete bb1
+ 1686  k delete pod bb1
+ 1687  kgp
+ 1688  clear
+ 1689  k run bb --image=busybox --restart=Never -- /bin/sh -c "echo EverythingISGood && echo PakistanZindabad && sleep 4 && echo Finished-Job"
+ 1690  k logs bb
+ 1691  k run bb --image=busybox --restart=Never -- /bin/sh -c "echo start class && echo  EverythingISGood && echo PakistanZindabad && sleep 14 && echo Finished-Job"
+ 1692  k run dbb --image=busybox --restart=Never -- /bin/sh -c "echo start class && echo  EverythingISGood && echo PakistanZindabad && sleep 14 && echo Finished-Job"
+ 1693  k logs dbb -f
+ 1694  kgp
+ 1695  k delete pods bb dbb
+ 1696  c
+ 1697  k run bb --image=busybox --restart=Never --it -rm  -- /bin/sh -c "echo start class && echo  EverythingISGood && echo PakistanZindabad && sleep 14 && echo Finished-Job"
+ 1698  k run bb --image=busybox -it  --restart=Never  -- /bin/sh -c "echo start class && echo  EverythingISGood && echo PakistanZindabad && sleep 14 && echo Finished-Job"
+ 1699  k run bb --image=busybox -it  --restart=Never  -- /bin/sh -c "echo start class && echo EverythingISGood && echo PakistanZindabad && sleep 14 && echo Finished-Job"
+ 1700  kgp
+ 1701  k delete pod bb
+ 1702  c
+ 1703  k run bb --image=busybox -it  --restart=Never  -- /bin/sh -c "echo start class && echo EverythingISGood && echo PakistanZindabad && sleep 14 && echo Finished-Job"
+ 1704  kgp
+ 1705  nano .bashrc
+ 1706  k run bb --image=busybox -it  --restart=Never  -- /bin/sh -c "echo start class && echo EverythingISGood && echo PakistanZindabad && sleep 14 && echo Finished-Job"
+ 1707  k run bb2 --image=busybox -it  --restart=Never  -- /bin/sh -c "echo EverythingISGood && echo PakistanZindabad && sleep 1 && echo Finished-Job"
+ 1708  k run bb22 --image=busybox -it  --restart=Never  -- /bin/sh -c "echo EverythingISGood && echo PakistanZindabad && sleep 1 && echo Finished-Job"
+ 1709  kgps
+ 1710  kgp
+ 1711  kgps
+ 1712  c
+ 1713  kgp
+ 1714  kgps
+ 1715  k run bb --image=busybox -it -rm  --restart=Never  -- /bin/sh -c "echo start class && echo EverythingISGood && echo PakistanZindabad && sleep 14 && echo Finished-Job"
+ 1716  k run bb --image=busybox -it --rm  --restart=Never  -- /bin/sh -c "echo start class && echo EverythingISGood && echo PakistanZindabad && sleep 14 && echo Finished-Job"
+ 1717  history
+ 1718  ls -l | grep docker
+ 1719  ks
+ 1720  ls
+ 1721  c
+ 1722  ls
+ 1723  sudo apt install ./docker-desktop-amd64.deb
+ 1724  docker image ls
+ 1725  c
+ 1726  docker -v
+ 1727  docker --version
+ 1728  c
+ 1729  cd
+ 1730  c
+ 1731  e
+ 1732  docker images
+ 1733  c
+ 1734  docker images
+ 1735  kgps
+ 1736  kgns
+ 1737  kcns fastapi
+ 1738  kr fastapi --image=safdaralishah/fastapi-app:latest --restart=Never
+ 1739  kgps
+ 1740  kgps -w
+ 1741  kubectl exec -it fastapi
+ 1742  kubectl exec -it fastapi -- /bin/bash
+ 1743  kgps
+ 1744  kdp fastapi
+ 1745  kgps
+ 1746  kgns
+ 1747  kdns fastapi
+ 1748  c
+ 1749  kgns
+ 1750  kgps
+ 1751  kgds
+ 1752  c
+ 1753  kr fastapi --image=safdaralishah/fastapi-app:latest --port=8000
+ 1754  FASTAPI_IP=$(kubectl get pod fastapi -o jsonpath='{.status.podIP}')
+ 1755  echo $FASTAPI_IP
+ 1756  kgp fastapi -o
+ 1757  kgp fastapi -o json
+ 1758  cd Documents/github/AI-400/13_Kuberneters/
+ 1759  ls
+ 1760  cd
+ 1761  cd Documents/github/fa_practice/
+ 1762  ls
+ 1763  cd md/
+ 1764  ls
+ 1765  node generate-license.js 0FCE31DFE3110A01F6E1DE06ED8383DACBFCB4B2136EA7C02A5FBCCA720EE5CF
+ 1766  cd 
+ 1767  cd Documents/github/fa_practice/
+ 1768  claude
+ 1769  c
+ 1770  exit
+ 1771  cd /Documents/github/fa_practices
+ 1772  cd /Documents/github/fa_practice
+ 1773  cd
+ 1774  cd Documents/github/fa_practice/
+ 1775  ls
+ 1776  cd
+ 1777  c
+ 1778  cd Documents/github/aci
+ 1779  c
+ 1780  claude
+ 1781  cd firearms-pos
+ 1782  ls
+ 1783  npm run dev
+ 1784  sudo npm run dev
+ 1785  npm run dev --no-sandbox
+ 1786  clear
+ 1787  npm run dev
+ 1788  npm run build
+ 1789  npm run dev
+ 1790  ELECTRON_DISABLE_SANDBOX=1 npm run dev 
+ 1791  ls
+ 1792  cd Documents/github/fa_practice/
+ 1793  ls
+ 1794  claude
+ 1795  kgps
+ 1796  kdp fastapi
+ 1797  kgps
+ 1798  kgns
+ 1799  c
+ 1800  e
+ 1801  df
+ 1802  df -h
+ 1803  myname=whoami
+ 1804  echo myname
+ 1805  c
+ 1806  cd Documents/github/AI-400/13_Kuberneters/
+ 1807  ls
+ 1808  c
+ 1809  kgps
+ 1810  k run bb --image=busybox -it --restart=Never -- /bin/sh -c 'wget -q0- localhost:8000'
+ 1811  k logs bb
+ 1812  kpgs
+ 1813  kgps
+ 1814  kdps bb
+ 1815  kgps
+ 1816  clear
+ 1817  k run bb --image=busybox -it --restart=Never -- /bin/sh -c 'wget -qO- localhost:8000'
+ 1818  k logs bb
+ 1819  c
+ 1820  kgps
+ 1821  kdps bb
+ 1822  c
+ 1823  k run --image=safdaralishah/fastapi-app -it --restart=Never -- /bin/sh -c 'wget -qO- localhost:8000'
+ 1824  docker images
+ 1825  c
+ 1826  k run --image=safdaralishah/fastapi-app:latest -it --restart=Never -- /bin/sh -c 'wget -qO- localhost:8000'
+ 1827  c
+ 1828  k run --image=safdaralishah/fastapi-app:latest -it --restart=Never -- /bin/sh/ -c 'wget -qO- localhost:8000'
+ 1829  c
+ 1830  k run --image=safdaralishah/fastapi-app:latest -it --restart=Never -- /bin/bash. -c 'wget -qO- localhost:8000'
+ 1831  k run --image=safdaralishah/fastapi-app:latest -it --restart=Never -- /bin/bash/ -c 'wget -qO- localhost:8000'
+ 1832  c
+ 1833  k run --image=safdaralishah/fastapi-app:latest -it -- /bin/bash/ -c 'wget -qO- localhost:8000'
+ 1834  k run bb --image=safdaralishah/fastapi-app:latest -it --restart=Never -- /bin/sh -c 'wget -qO- localhost:8000'
+ 1835  c
+ 1836  ls
+ 1837  kubectl apply -f pod.yaml
+ 1838  kgps
+ 1839  kgps -w
+ 1840  kgps
+ 1841  c
+ 1842  kubectl port-forword=8000:8000
+ 1843  kgps
+ 1844  kubectl port-forword fastapi-pod  8000:8000 
+ 1845  kubectl port-forward fastapi-pod  8000:8000 
+ 1846  kgps
+ 1847  kdps fastapi-pod
+ 1848  clear
+ 1849  e
+ 1850  ls
+ 1851  git clone https://github.com/kubernetes/website.git
+ 1852  ls
+ 1853  ll
+ 1854  git clone https://github.com/kubernetes/website.git
+ 1855  cd Documents/github/aci
+ 1856  ls
+ 1857  claude
+ 1858  ls
+ 1859  code .
+ 1860  c
+ 1861  cd
+ 1862  c
+ 1863  cd Documents/github/AI-400/Kubernetes/
+ 1864  ls
+ 1865  ll
+ 1866  cd webs
+ 1867  cd website/
+ 1868  ll
+ 1869  c
+ 1870  e
+ 1871  k run --help >kubectl.run.help.txt
+ 1872  k apply --help >kubectl.appy.help.txt
+ 1873  k create --help >kubectl.create.help.txt
+ 1874  k
+ 1875  k --help
+ 1876  c
+ 1877  k > kubernetes.txt
+ 1878  k
+ 1879  k logs --help
+ 1880  k logs --help > kubectl.logs.txt
+ 1881  k exec --help > kubectl.exec.txt
+ 1882  k exec --help
+ 1883  k
+ 1884  k event --help
+ 1885  k events --help
+ 1886  k events --help > kubectl.events.txt
+ 1887  c
+ 1888  k
+ 1889  k describe --help
+ 1890  k describe --help > kubectl.describe.txt
+ 1891  k
+ 1892  k api-versions
+ 1893  k api-versions > kubectl.api-version.txt
+ 1894  k
+ 1895  k api-resources
+ 1896  k api-resources --help
+ 1897  k api-resources --help > kubectl.api-resource.txt
+ 1898  ls
+ 1899  k
+ 1900  k port-forward --help
+ 1901  k port-forward --help > kubectl.port-forward.txt
+ 1902  c
+ 1903  k
+ 1904  k cluster-info
+ 1905  k cluster-info --help
+ 1906  k cluster-info dump
+ 1907  k cluster-info dump > kubectl.cluster-info.dump.txt
+ 1908  c
+ 1909  k
+ 1910  k delete --ehlp
+ 1911  k delete --help
+ 1912  k delete --help > kubectl.delete.txt
+ 1913  k
+ 1914  k get --help
+ 1915  k get --help > kubectl.get.txt
+ 1916  k
+ 1917  k explain --help
+ 1918  k explain --help > kubectl.explain.txt
+ 1919  c
+ 1920  k
+ 1921  k run --help
+ 1922  k run --help > kubectl.run.help
+ 1923  ks
+ 1924  ls
+ 1925  c
+ 1926  e
+ 1927  cd Documents/github/AI-400/14_Kubernetes/
+ 1928  ls
+ 1929  ll
+ 1930  cd ..
+ 1931  cd 13_Kubernetes/
+ 1932  ls
+ 1933  cat pod.yaml 
+ 1934  c
+ 1935  cd ..
+ 1936  cd 14_Kubernetes/
+ 1937  ls
+ 1938  c
+ 1939  touch pod.yaml
+ 1940  nano pod.yaml 
+ 1941  c
+ 1942  kr -f pod.yaml 
+ 1943  nano pod.yaml 
+ 1944  kr -f pod.yaml 
+ 1945  nano pod.yaml 
+ 1946  kr -f pod.yaml 
+ 1947  ls
+ 1948  kubectl apply -f pod.yaml pod.yaml pod.yaml 
+ 1949  kubectl apply -f pod.yaml 
+ 1950  nano pod.yaml 
+ 1951  c
+ 1952  k apply -f pod.yaml 
+ 1953  k apply -f [pod.yaml pod.yaml]
+ 1954  kubectl apply -h
+ 1955  kgps
+ 1956  kdps bb fastapi-pod
+ 1957  c
+ 1958  kgps
+ 1959  c
+ 1960  ls
+ 1961  cd website/
+ 1962  ls
+ 1963  # fetch submodule dependencies
+ 1964  make module-init
+ 1965  npm ci
+ 1966  # Render the full site (default)
+ 1967  make serve
+ 1968  # Render only a specific language segment
+ 1969  make serve segments=en
+ 1970  # Render multiple language segments
+ 1971  make serve segments=en,ko
+ 1972  # Render the full site (default)
+ 1973  make serve
+ 1974  # Render only a specific language segment
+ 1975  make serve segments=en
+ 1976  # Render multiple language segments
+ 1977  make serve segments=en,ko
+ 1978  c
+ 1979  npm ci
+ 1980  make serve
+ 1981  hugo
+ 1982  apt install hugo
+ 1983  sudo apt install hugo
+ 1984  make serve segments=en
+ 1985  sudo kubeadm token list
+ 1986  kubeadm
+ 1987  ls
+ 1988  cc
+ 1989  c
+ 1990  cd Documents/github/AI-400/Kubernetes/website/
+ 1991  ls
+ 1992  make serve segments=en
+ 1993  cd Documents/github/AI-400/Kubernetes/website/
+ 1994  ls
+ 1995  history
+ 1996  make serve segments=en
+ 1997  pwd
+ 1998  make serve segments=enc
+ 1999  c
+ 2000  e
+ 2001  k
+ 2002  kgps
+ 2003  c
+ 2004  kgps
+ 2005  c
+ 2006  l
+ 2007  cd Documents/github/AI-400/14_Kubernetes/
+ 2008  ls
+ 2009  c
+ 2010  k cluster-info
+ 2011  c
+ 2012  kcd
+ 2013  k cluster-info
+ 2014  kubectl cluster-info dump
+ 2015  c
+ 2016  kubectl cluster-info
+ 2017  k get context
+ 2018  kubectl config view
+ 2019  kubectl config view > config.view.txt
+ 2020  cat config.view.txt 
+ 2021  c
+ 2022  k config view
+ 2023  k config view | grep docker-desktop
+ 2024  kubectl config --help > k.config.help.txt
+ 2025  kubectl config --help
+ 2026  kubectl config current-context
+ 2027  kubectl config view
+ 2028  c
+ 2029  kcns
+ 2030  k create ns dev-team
+ 2031  kgns
+ 2032  k auth can-i create ns
+ 2033  kubectl config view raw
+ 2034  kubectl config view --raw
+ 2035  kgns
+ 2036  k -n dev-team create sa dev-user
+ 2037  kgsa
+ 2038  k get sa
+ 2039* k get sa -n dev-team 
+ 2040  kubectl -n dev-team get sa dev-user -o yaml
+ 2041  kubectl -n dev-team get sa dev-user -o yaml > sa.dev-user.dev-team.ns.txt
+ 2042  c
+ 2043  k create -n dev-team token dev-user
+ 2044  kubectl create role dev-role --resource=pods --verb=get,list,watch,create,delete -n dev-team --dry-run=client
+ 2045  kubectl create role dev-role --resource=pods --verb=get,list,watch,create,delete -n dev-team --dry-run=client > role.yaml
+ 2046  cat role.yaml 
+ 2047  kubectl create role dev-role --resource=pods --verb=get,list,watch,create,delete -n dev-team  > role.yaml
+ 2048  cat role.yaml 
+ 2049  kubectl create role dev-role --resource=pods --verb=get,list,watch,create,delete -n dev-team 
+ 2050  kubectl create role dev-role --resource=pods --verb=get,list,watch,create,delete -n dev-team  > role.yaml
+ 2051  kubectl create role dev-role --resource=pods --verb=get,list,watch,create,delete -n dev-team --dry-run=client > role.yaml
+ 2052  cat role.yaml 
+ 2053  c
+ 2054  kubectl create rolebinding dev-user-rb --role=dev-role --serviceaccount=dev-team:dev-user -n dev-team --dry-run=client -o yaml > dev-user-rb.yaml
+ 2055  kubectl create role dev-role --resource=pods --verb=get,list,watch,create,delete -n dev-team  -o yaml > role.yaml
+ 2056  cat role.yaml 
+ 2057  kubectl delete role dev-role
+ 2058  kubectl delete role dev-role -n dev-team
+ 2059  kubectl create role dev-role --resource=pods --verb=get,list,watch,create,delete -n dev-team  -o yaml > role.yaml
+ 2060  k get roles -n dev-team
+ 2061  cat role.yaml 
+ 2062  ls
+ 2063  c
+ 2064  ls
+ 2065  k apply -f dev-user-rb.yaml 
+ 2066  k get rolebinding -n dev-team
+ 2067  c
+ 2068  k config current-context
+ 2069  k config set-context devuser-context
+ 2070  k config view -raw
+ 2071  k config view --raw
+ 2072  kubectl config
+ 2073  k config set-credentials devuser-context
+ 2074  k config set-credentials devuser-context@docker-desktop
+ 2075  k config set-credentials devuser-context@docker-desktop --user=devuser-context --namespace=dev-team --cluster=docker-desktop
+ 2076  k config get-context
+ 2077  k config get-contexts
+ 2078  k config current-context
+ 2079  k config set-credentials devuser-context@docker-desktop --user=devuser-context --namespace=dev-team --cluster=docker-desktop
+ 2080  k config get-contexts
+ 2081  k auth can-i list pod
+ 2082  k auth can-i list pod -n dev-team
+ 2083  k auth can-i delete pods -n dev-team
+ 2084  k auth can-i watch pods -n dev-team
+ 2085  ls
+ 2086  cat sa.dev-user.dev-team.ns.txt 
+ 2087  cat role.yaml 
+ 2088  k get roles -n dev-team
+ 2089  nano role.yaml 
+ 2090  cat role.yaml 
+ 2091  c
+ 2092  k apply -f role.yaml -n dev-team
+ 2093  k delete role dev-role -n dev-team
+ 2094  k apply -f role.yaml 
+ 2095  k get roles -n dev-teams
+ 2096  k get roles -n dev-team
+ 2097  k auth can-i watch -n dev-team
+ 2098  k auth can-i watch pod -n dev-team
+ 2099  cat role.yaml 
+ 2100  k auth can-i list pod -n dev-team
+ 2101  kubectl config use-context devuser-context@docker-desktop
+ 2102  kubectl config view
+ 2103  k config get-context
+ 2104  k config current-context
+ 2105  k config get-context
+ 2106  history
+ 2107  k config get-contexts
+ 2108  k config use-contexts devuser-context
+ 2109  k config use-context devuser-context
+ 2110  k auth can-i watch pod -n dev-team
+ 2111  k auth can-i watch pods -n dev-team
+ 2112  k config view
+ 2113  k config use-context docker-desktop
+ 2114  c
+ 2115  kgps
+ 2116  kgp
+ 2117  kdns
+ 2118  c
+ 2119  ls
+ 2120  kgps -n dev-team
+ 2121  k get roles -n dev-team
+ 2122  k get rolebinding -n dev-ream
+ 2123  k get rolebinding -n dev-team
+ 2124  k get sa -n dev-team
+ 2125  k config view
+ 2126  k config 
+ 2127  c
+ 2128  history 
+ 2129  history > com1.txt

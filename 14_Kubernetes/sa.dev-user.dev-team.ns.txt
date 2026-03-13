@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  creationTimestamp: "2026-03-12T19:23:07Z"
+  name: dev-user
+  namespace: dev-team
+  resourceVersion: "187520"
+  uid: 5ed0151b-431a-4133-aa46-2ff0b8610380

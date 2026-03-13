@@ -6,7 +6,7 @@
   - first check kubectl cluster-info
   - kubectl config --help
   - then check your current context run kubectl get context.
-  - run kubectl config view. (give detailed view of cluster, the important things to see is Cluster,Context,Users)
+  - run kubectl config view. (give detailed view of cluster, the important things to see is Cluster,Context,Users)/namespace
   - Cluster have certificate to validate the user auth.
   - Context have combine Cluster+User+Namespace. 
   - User is details of Current logged in user.
@@ -30,3 +30,26 @@
   -  kubectl create rolebinding devuser-rb --role=devuser-role --serviceaccount=dev-team:devuser -n dev-team --dry-run=client -o yaml > devuser-rb.yaml
   -   kubectl config current-context
   -   kubectl config set-credentials devuser
+  -  kubectl config view --raw
+  -  kubectl config
+  -  kubectl config set-context devuser@docker-desktop
+  -  kubectl config set-context devuser@docker-desktop --user=devuser --namespace=dev-team --cluster=docker-desktop
+  -  kubectl  config get-context
+  -  check current context with k config current-context
+  -  kubectl config use-context devuser@docker-desktop
+  -  k config get-contexts
+  -  checking...
+  -  kubectl auth can-i list pod (possible answer no)
+  -  kubectl auth can-i list pod -n dev-team (possible answer no)
+  -  kubectl auth can-i --list -n dev-team 
+  -  kubectl config current-context
+  -   we forget to bind role
+  -   now rolebinding
+  -   kubectl apply -f rolebinding.yaml
+  -   kubectl get rolebinding -n dev-team
+  -   kubectl config use-context devuser@docker-desktop
+  -   kubectl auth can-i list pod (possibel answer yes)
+  -   after running image in namespace dev-team and if it shows errorin starting containers.
+  -   kubectl run events (error form server as we forbidden: user can't list resource "events" in API Group '' in the namespace dev-team)
+  -   Assigning new or additional roles to user we have to ask to admin in docker-desktop senrioro docker-desktop is admin, so we have to switch context to docker-desktop 
+  -   
