@@ -1,0 +1,65 @@
+create ns dev-team
+
+kubectl config view --raw
+
+k config view
+k -n dev-team create sa devuser
+k get sa
+k get sa -n dev-team
+
+k -n dev-team create sa devuser -o yaml
+ 1903  13/03/2026 12:34:23 k -n dev-team create sa devuser --dry-run=client -o yaml 
+ 1904  13/03/2026 12:34:23 cat sa.dev-user.dev-team.ns.txt 
+ 1905  13/03/2026 12:34:23 k get sa -n dev-team
+ 1906  13/03/2026 12:34:23 k delete sa devuser -n dev-team
+
+ 1908  13/03/2026 12:34:23 k create serivesaccount devuser -n dev-team
+ 1909  13/03/2026 12:34:23 kubectl -n dev-team create serviceaccount devuser
+ 1910  13/03/2026 12:34:23 kubectl -n dev-team get serviceaccount devuser
+ 1911  13/03/2026 12:34:23 kubectl -n dev-team get serviceaccount devuser -o yaml
+ 1912  13/03/2026 12:34:23 k create -n dev-team token devuser
+
+ 1914  13/03/2026 12:34:23 k create role devuser-role --resource=pods --verb=get,list,watch,create,delete -n dev-team --dry-run=client -o yaml
+k create role devuser-role --resource=pods --verb=get,list,watch,create,delete -n dev-team
+   --dry-run=client -o yaml > devuser-role-updated.yaml
+
+ 1918  13/03/2026 12:34:23 k apply -f devuser-role-updated.yaml 
+ 1919  13/03/2026 12:34:23 cat devuser-role-updated.yaml 
+
+ 1921  13/03/2026 12:34:23 k get role -n dev-team
+
+kubectl create rolebinding devuser-rb --role=devuser-role --serviceaccount=dev-team:devuser -n dev-team --dry-run=client -o yaml
+kubectl apply rolebinding devuser-rb --role=devuser-role --serviceaccount=dev-team:devuser -n dev-team --dry-run=client -o yaml
+ 1925  13/03/2026 12:34:23 k get sa -n dev-team
+ 1926  13/03/2026 12:34:23 k get rolebinding -n dev-team
+ 1927  13/03/2026 12:34:23 kubectl create rolebinding devuser-rb --role=devuser-role --serviceaccount=dev-team:devuser -n dev-team --dry-run=client -o yaml
+ 1928  13/03/2026 12:34:23 kubectl create rolebinding devuser-rb --role=devuser-role --serviceaccount=dev-team:devuser -n dev-team --dry-run=client -o yaml > rb_updated.yaml
+ 1929  13/03/2026 12:34:23 cat rb_updated.yaml 
+
+ 1932  13/03/2026 12:34:23 k config set-credentials devuser --token="eyJhbGciOiJSUzI1NiIsImtpZCI6IlRaejNHUU9KOXJBNEt3ZHptWDUzdDlWOFlLWEF1Snh1cFVHVnBneVJkVUEifQ.eyJhdWQiOlsiaHR0cHM6Ly9rdWJlcm5ldGVzLmRlZmF1bHQuc3ZjLmNsdXN0ZXIubG9jYWwiXSwiZXhwIjoxNzczMzg4MzI3LCJpYXQiOjE3NzMzODQ3MjcsImlzcyI6Imh0dHBzOi8va3ViZXJuZXRlcy5kZWZhdWx0LnN2Yy5jbHVzdGVyLmxvY2FsIiwianRpIjoiNzc2ZmI2N2UtYzVkZi00M2MwLTliMWMtZGI4NTAwNDBmOGRkIiwia3ViZXJuZXRlcy5pbyI6eyJuYW1lc3BhY2UiOiJkZXYtdGVhbSIsInNlcnZpY2VhY2NvdW50Ijp7Im5hbWUiOiJkZXZ1c2VyIiwidWlkIjoiNDMxZWFhNTMtODMyZi00YzViLTkwMWYtZjE5MjU4YjY4OGRjIn19LCJuYmYiOjE3NzMzODQ3MjcsInN1YiI6InN5c3RlbTpzZXJ2aWNlYWNjb3VudDpkZXYtdGVhbTpkZXZ1c2VyIn0.K32fHg2SruMEJm_wnQ5rIKyJno1yDH-fcZIFvGzsaio6djCIQ3U7bl3gdXGa1dka_fYYuy7mmni6zAXD2cdbHnYJqdywMYRijejiLw5xY87ax_nHfDdGwSTmj3Cql1YYvTJzcsxle4IIF4y1fuWhUYbTNSxT8UN0QiJPvjTzJivHNnLtP_jzh54thQ2faEiKXmSGYneyAwydyX9cMlEeP0nvX7_qPo_5W1-KkgY-7J2HAzQCO5jtFbGhIXDavfzbfBNmdIDm8gFapuo7q2BuIt8V3K8DYrGYgKYtumYnjg5B06LtsRJvenN86YvlE0KVYHXwr2BGdskAVkZNo_ZcPw" 
+
+ 1934  13/03/2026 12:34:23 k config set-context devuser@docker-desktop --user=devuser --namespace=dev-team --cluster=docker-desktop
+ 1935  13/03/2026 12:34:23 k config set-context devuser@docker-desktop --user=devuser --namespace=dev-team --cluster=docker-desktop -o yaml > create-context.yaml
+
+ 1940  13/03/2026 12:34:23 kubectl config use-context devuser@docker-desktop
+ 1946  13/03/2026 12:34:23 kubectl auth can-i list pod -n dev-team
+ 1947  13/03/2026 12:34:23 kubectl auth can-i --list
+ 1950  13/03/2026 12:34:23 k config current-context
+ 1951  13/03/2026 12:34:23 k config current-contexts
+ 1952  13/03/2026 12:34:23 k config use-context docker-desktop
+ 1955  13/03/2026 12:34:23 k apply -f rb_updated.yaml 
+ 1957  13/03/2026 12:34:23 k get rolebinding -n dev-team
+ 1959  13/03/2026 12:34:23 k config use-context devuser@docker-desktop
+ 1960  13/03/2026 12:34:23 k auth can-i list pods
+ 1961  13/03/2026 12:34:23 k auth can-i watch pods
+ 1962  13/03/2026 12:34:23 k auth can-i create pods
+ 1963  13/03/2026 12:34:23 k auth can-i delete pods
+ 1964  13/03/2026 12:34:23 k auth can-i --list
+ 1969  13/03/2026 12:34:23 k run fastapi-dev --image=safdaralishah/fastapi-app:latest --restart=Never --dry-run=client
+ 1970  13/03/2026 12:34:23 k run fastapi-dev --image=safdaralishah/fastapi-app:latest --restart=Never --dry-run=client -o yaml
+ 1971  13/03/2026 12:34:23 k run fastapi-dev --image=safdaralishah/fastapi-app:latest --restart=Never --dry-run=client -o yaml > create-pod.yaml
+ 1972  13/03/2026 12:34:23 kubectl apply -f create-pod.yaml 
+ 1980  13/03/2026 12:34:23 k exec -it fastapi-dev -- /bin/sh
+ 1989  13/03/2026 12:34:23 k api-resources
+ 1991  13/03/2026 12:34:23 kubectl get --raw "/api/v1" | jq '.resources[] | select(.name | contains("/")) | .name'
+ 1992  13/03/2026 12:34:23 kubectl get --raw "/api/v1" | jq '.resources[] | select(.name | contains("/")) | .name' > subResources.txt
