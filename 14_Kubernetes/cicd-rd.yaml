@@ -1,0 +1,13 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: cicd-rb
+  namespace: cicd-team
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: cicd-role
+subjects:
+- kind: ServiceAccount
+  name: cicduser
+  namespace: cicd-team
