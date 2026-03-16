@@ -1,7 +1,12 @@
-from fastapi import FastAPI
+import os
+
+import httpx
+from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 
 app = FastAPI(title="Todo Manager")
+
+TODO_PROGRESS_URL = os.getenv("TODO_PROGRESS_URL", "http://todo-progress-monitoring:8002")
 
 # In-memory storage
 todos = [
@@ -36,3 +41,14 @@ def create_todo(todo: TodoCreate):
     new_todo = {"id": counter, "title": todo.title, "description": todo.description, "status": todo.status}
     todos.append(new_todo)
     return new_todo
+
+
+@app.get("/todos/progress")
+async def get_todos_progress():
+    try:
+        async with httpx.AsyncClient() as client:
+            resp = await client.get(f"{TODO_PROGRESS_URL}/progress", timeout=5.0)
+            resp.raise_for_status()
+            return resp.json()
+    except httpx.HTTPError:
+        raise HTTPException(status_code=502, detail="Failed to reach todo_progress_monitoring service")

@@ -1,13 +1,18 @@
+import os
+
+import httpx
 from fastapi import FastAPI, HTTPException
 
 app = FastAPI(title="Todo Progress Monitoring")
 
-# In-memory storage — static snapshot matching todo_manager seed data
-todos = [
-    {"id": 1, "title": "Learn FastAPI", "description": "Build REST APIs with FastAPI", "status": "completed"},
-    {"id": 2, "title": "Learn Docker", "description": "Containerize Python applications", "status": "in_progress"},
-    {"id": 3, "title": "Learn Kubernetes", "description": "Deploy containers to K8s", "status": "pending"},
-]
+TODO_MANAGER_URL = os.getenv("TODO_MANAGER_URL", "http://todo-manager:8001")
+
+
+async def fetch_todos() -> list[dict]:
+    async with httpx.AsyncClient() as client:
+        resp = await client.get(f"{TODO_MANAGER_URL}/todos", timeout=5.0)
+        resp.raise_for_status()
+        return resp.json()
 
 
 @app.get("/")
@@ -16,7 +21,11 @@ def health_check():
 
 
 @app.get("/progress")
-def get_progress():
+async def get_progress():
+    try:
+        todos = await fetch_todos()
+    except httpx.HTTPError:
+        raise HTTPException(status_code=502, detail="Failed to reach todo_manager service")
     total = len(todos)
     completed = sum(1 for t in todos if t["status"] == "completed")
     in_progress = sum(1 for t in todos if t["status"] == "in_progress")
@@ -32,7 +41,11 @@ def get_progress():
 
 
 @app.get("/progress/{todo_id}")
-def get_todo_progress(todo_id: int):
+async def get_todo_progress(todo_id: int):
+    try:
+        todos = await fetch_todos()
+    except httpx.HTTPError:
+        raise HTTPException(status_code=502, detail="Failed to reach todo_manager service")
     for todo in todos:
         if todo["id"] == todo_id:
             return {"id": todo["id"], "title": todo["title"], "status": todo["status"]}

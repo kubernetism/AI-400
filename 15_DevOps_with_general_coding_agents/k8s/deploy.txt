@@ -1,0 +1,18 @@
+ To Deploy                                                                                                                                                     
+                                                                                                                                                                
+  # Build images (for Minikube: eval $(minikube docker-env) first)
+  docker build -t todo-manager:latest ./todo_manager                                                                                                            
+  docker build -t todo-progress-monitoring:latest ./todo_progress_monitoring
+                                                                                                                                                                
+  # Deploy to Kubernetes                                    
+  kubectl apply -f k8s/                                                                                                                                         
+                                                            
+  # Verify pods are running
+  kubectl get pods
+
+  # Test inter-service communication                                                                                                                            
+  kubectl port-forward svc/todo-manager 8001:8001
+  kubectl port-forward svc/todo-progress-monitoring 8002:8002                                                                                                   
+                                                                                                                                                                
+  # Then: curl http://localhost:8001/todos/progress  (manager calls monitoring)                                                                                 
+  # And:  curl http://localhost:8002/progress          (monitoring calls manager)  
