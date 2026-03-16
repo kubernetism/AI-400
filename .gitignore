@@ -30,4 +30,7 @@ Projects/02_todo_api_project/.env
 03-CRUD_Error_Handling_Tests/todo-api/.env
 03-CRUD_Error_Handling_Tests/todo-api/.venv
 04_Dependency_Injection_SQLModel_Environment_Config/.venv
-
+15_DevOps_with_general_coding_agents/todo_manager/.venv
+15_DevOps_with_general_coding_agents/todo_manager/.env
+15_DevOps_with_general_coding_agents/todo_progress_monitoring/.venv
+15_DevOps_with_general_coding_agents/todo_progress_monitoring/.env
