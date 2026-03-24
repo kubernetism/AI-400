@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: todo-progress-monitoring
+  labels:
+    app: todo-progress-monitoring
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: todo-progress-monitoring
+  template:
+    metadata:
+      labels:
+        app: todo-progress-monitoring
+    spec:
+      containers:
+        - name: todo-progress-monitoring
+          image: todo-progress-monitoring:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8002
+          env:
+            - name: TODO_MANAGER_URL
+              value: "http://todo-manager:8001"
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 8002
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 8002
+            initialDelaySeconds: 10
+            periodSeconds: 30
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: todo-progress-monitoring
+spec:
+  selector:
+    app: todo-progress-monitoring
+  ports:
+    - protocol: TCP
+      port: 8002
+      targetPort: 8002
+  type: ClusterIP
