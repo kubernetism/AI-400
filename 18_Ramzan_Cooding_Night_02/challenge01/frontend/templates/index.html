@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Task Manager</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #F5F0E8;
+      --paper:     #FDFAF4;
+      --ink:       #1A1714;
+      --ink-light: #6B6560;
+      --rule:      #D4CCBC;
+      --accent:    #C8440A;
+      --accent-bg: #FFF0EB;
+      --done-bg:   #E8F0E4;
+      --done-ink:  #4A6B3A;
+      --shadow:    4px 4px 0px #1A1714;
+      --radius:    2px;
+    }
+
+    html { font-size: 16px; }
+
+    body {
+      background-color: var(--bg);
+      background-image:
+        repeating-linear-gradient(
+          0deg,
+          transparent,
+          transparent 31px,
+          var(--rule) 31px,
+          var(--rule) 32px
+        );
+      min-height: 100vh;
+      font-family: 'DM Mono', monospace;
+      color: var(--ink);
+      padding: 40px 20px 80px;
+    }
+
+    /* ── HEADER ── */
+    header {
+      max-width: 720px;
+      margin: 0 auto 48px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      border-bottom: 3px solid var(--ink);
+      padding-bottom: 12px;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .logo-block h1 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(3rem, 8vw, 5.5rem);
+      line-height: 0.9;
+      letter-spacing: 0.02em;
+      color: var(--ink);
+    }
+
+    .logo-block p {
+      font-size: 0.7rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--ink-light);
+      margin-top: 6px;
+    }
+
+    .api-badge {
+      font-size: 0.65rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      background: var(--ink);
+      color: var(--bg);
+      padding: 4px 10px;
+      border-radius: var(--radius);
+      white-space: nowrap;
+    }
+
+    .api-badge span {
+      color: #90EE90;
+      font-weight: 500;
+    }
+
+    /* ── MAIN ── */
+    main { max-width: 720px; margin: 0 auto; }
+
+    /* ── ADD FORM ── */
+    .add-form {
+      background: var(--paper);
+      border: 2px solid var(--ink);
+      box-shadow: var(--shadow);
+      border-radius: var(--radius);
+      padding: 24px;
+      margin-bottom: 40px;
+      position: relative;
+    }
+
+    .add-form::before {
+      content: 'NEW TASK';
+      position: absolute;
+      top: -12px; left: 16px;
+      background: var(--accent);
+      color: #fff;
+      font-size: 0.65rem;
+      font-weight: 500;
+      letter-spacing: 0.15em;
+      padding: 2px 10px;
+      border-radius: var(--radius);
+    }
+
+    .form-row {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+
+    .form-row:last-child { margin-bottom: 0; }
+
+    input[type="text"],
+    textarea {
+      flex: 1;
+      min-width: 0;
+      background: var(--bg);
+      border: 1.5px solid var(--rule);
+      border-radius: var(--radius);
+      padding: 10px 14px;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.85rem;
+      color: var(--ink);
+      outline: none;
+      transition: border-color 0.15s;
+      resize: none;
+    }
+
+    input[type="text"]:focus,
+    textarea:focus {
+      border-color: var(--ink);
+    }
+
+    input[type="text"]::placeholder,
+    textarea::placeholder {
+      color: var(--ink-light);
+    }
+
+    textarea { height: 64px; }
+
+    .btn {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.8rem;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 10px 22px;
+      border: 2px solid var(--ink);
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: transform 0.08s, box-shadow 0.08s;
+      white-space: nowrap;
+    }
+
+    .btn:active { transform: translate(2px, 2px); box-shadow: none !important; }
+
+    .btn-primary {
+      background: var(--ink);
+      color: var(--bg);
+      box-shadow: 3px 3px 0 var(--accent);
+    }
+
+    .btn-primary:hover { box-shadow: 4px 4px 0 var(--accent); }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--ink-light);
+      border-color: var(--rule);
+    }
+
+    .btn-ghost:hover { border-color: var(--ink); color: var(--ink); }
+
+    .btn-danger {
+      background: transparent;
+      color: var(--accent);
+      border-color: var(--accent);
+      padding: 6px 12px;
+      font-size: 0.7rem;
+    }
+
+    .btn-danger:hover { background: var(--accent); color: #fff; }
+
+    /* ── TOOLBAR ── */
+    .toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .task-count {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.4rem;
+      letter-spacing: 0.05em;
+      color: var(--ink);
+    }
+
+    .task-count em {
+      font-family: 'Instrument Serif', serif;
+      font-style: italic;
+      font-size: 1rem;
+      color: var(--ink-light);
+      letter-spacing: 0;
+    }
+
+    .filters {
+      display: flex;
+      gap: 6px;
+    }
+
+    .filter-btn {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 4px 12px;
+      border: 1.5px solid var(--rule);
+      border-radius: 99px;
+      background: transparent;
+      color: var(--ink-light);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .filter-btn.active, .filter-btn:hover {
+      background: var(--ink);
+      color: var(--bg);
+      border-color: var(--ink);
+    }
+
+    /* ── TASK LIST ── */
+    #task-list { display: flex; flex-direction: column; gap: 12px; }
+
+    .task-card {
+      background: var(--paper);
+      border: 2px solid var(--ink);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 18px 20px;
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      animation: slideIn 0.2s ease;
+      transition: opacity 0.2s;
+    }
+
+    .task-card.completed {
+      background: var(--done-bg);
+      border-color: var(--done-ink);
+      box-shadow: 4px 4px 0 var(--done-ink);
+    }
+
+    .task-card.removing {
+      opacity: 0;
+      transform: translateX(20px);
+      transition: opacity 0.2s, transform 0.2s;
+    }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(-8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Checkbox */
+    .task-check {
+      width: 22px; height: 22px;
+      border: 2px solid var(--ink);
+      border-radius: var(--radius);
+      flex-shrink: 0;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.15s;
+      margin-top: 2px;
+      background: transparent;
+    }
+
+    .task-check:hover { background: var(--accent-bg); }
+
+    .task-card.completed .task-check {
+      background: var(--done-ink);
+      border-color: var(--done-ink);
+    }
+
+    .task-check svg { display: none; }
+    .task-card.completed .task-check svg { display: block; }
+
+    /* Content */
+    .task-content { flex: 1; min-width: 0; }
+
+    .task-title {
+      font-size: 0.95rem;
+      font-weight: 500;
+      margin-bottom: 4px;
+      transition: color 0.15s;
+      word-break: break-word;
+    }
+
+    .task-card.completed .task-title {
+      text-decoration: line-through;
+      color: var(--ink-light);
+    }
+
+    .task-desc {
+      font-size: 0.75rem;
+      color: var(--ink-light);
+      line-height: 1.5;
+      word-break: break-word;
+    }
+
+    .task-meta {
+      margin-top: 8px;
+      font-size: 0.65rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .tag {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 99px;
+      border: 1px solid;
+    }
+
+    .tag-pending  { color: var(--accent);   border-color: var(--accent);   background: var(--accent-bg); }
+    .tag-done     { color: var(--done-ink); border-color: var(--done-ink); background: var(--done-bg); }
+
+    .task-actions { display: flex; gap: 6px; flex-shrink: 0; }
+
+    /* Inline edit */
+    .edit-form {
+      display: none;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .edit-form.open { display: flex; }
+
+    .edit-form .form-row { margin-bottom: 0; }
+
+    /* Empty state */
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      border: 2px dashed var(--rule);
+      border-radius: var(--radius);
+    }
+
+    .empty-state .big-num {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 5rem;
+      line-height: 1;
+      color: var(--rule);
+    }
+
+    .empty-state p {
+      font-size: 0.75rem;
+      color: var(--ink-light);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-top: 8px;
+    }
+
+    /* Toast */
+    #toast {
+      position: fixed;
+      bottom: 24px; right: 24px;
+      background: var(--ink);
+      color: var(--bg);
+      font-size: 0.75rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 10px 18px;
+      border-radius: var(--radius);
+      box-shadow: 3px 3px 0 var(--accent);
+      opacity: 0;
+      transform: translateY(10px);
+      transition: opacity 0.2s, transform 0.2s;
+      pointer-events: none;
+      z-index: 100;
+    }
+
+    #toast.show { opacity: 1; transform: translateY(0); }
+
+    /* Loading spinner */
+    .spinner {
+      width: 16px; height: 16px;
+      border: 2px solid var(--rule);
+      border-top-color: var(--ink);
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+      margin: 0 auto;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    #loading {
+      text-align: center;
+      padding: 40px;
+    }
+
+    /* Error banner */
+    #error-banner {
+      display: none;
+      background: var(--accent-bg);
+      border: 2px solid var(--accent);
+      color: var(--accent);
+      font-size: 0.75rem;
+      letter-spacing: 0.05em;
+      padding: 10px 16px;
+      border-radius: var(--radius);
+      margin-bottom: 20px;
+    }
+
+    /* Responsive */
+    @media (max-width: 500px) {
+      .form-row { flex-direction: column; }
+      .task-actions { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="logo-block">
+      <h1>Task<br/>Board</h1>
+      <p>Ramzan Coding Night / Challenge 01</p>
+    </div>
+    <div class="api-badge">API <span id="api-status">●</span> <span id="api-url-display"></span></div>
+  </header>
+
+  <main>
+
+    <!-- Add Form -->
+    <div class="add-form">
+      <div class="form-row">
+        <input type="text" id="new-title" placeholder="Task title…" autocomplete="off"/>
+      </div>
+      <div class="form-row">
+        <textarea id="new-desc" placeholder="Description (optional)…"></textarea>
+        <button class="btn btn-primary" onclick="createTask()">+ Add</button>
+      </div>
+    </div>
+
+    <!-- Error Banner -->
+    <div id="error-banner"></div>
+
+    <!-- Toolbar -->
+    <div class="toolbar">
+      <div class="task-count">
+        <span id="count-display">0</span> <em>tasks</em>
+      </div>
+      <div class="filters">
+        <button class="filter-btn active" data-filter="all"    onclick="setFilter('all',this)">All</button>
+        <button class="filter-btn"        data-filter="pending" onclick="setFilter('pending',this)">Pending</button>
+        <button class="filter-btn"        data-filter="done"    onclick="setFilter('done',this)">Done</button>
+      </div>
+    </div>
+
+    <!-- Task List -->
+    <div id="task-list">
+      <div id="loading"><div class="spinner"></div></div>
+    </div>
+
+  </main>
+
+  <div id="toast"></div>
+
+  <script>
+    const API_URL = "{{ api_url }}";
+    let allTasks = [];
+    let currentFilter = 'all';
+
+    // ── Bootstrap ──
+    document.getElementById('api-url-display').textContent = API_URL.replace(/https?:\/\//, '');
+    document.getElementById('new-title').addEventListener('keydown', e => {
+      if (e.key === 'Enter') createTask();
+    });
+
+    // ── API helpers ──
+    async function api(method, path, body) {
+      const res = await fetch(`${API_URL}${path}`, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: body ? JSON.stringify(body) : undefined
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.detail || `HTTP ${res.status}`);
+      }
+      if (res.status === 204) return null;
+      return res.json();
+    }
+
+    // ── Load tasks ──
+    async function loadTasks() {
+      try {
+        allTasks = await api('GET', '/tasks');
+        document.getElementById('api-status').style.color = '#90EE90';
+        hideError();
+        renderTasks();
+      } catch (e) {
+        document.getElementById('api-status').style.color = '#ff6b6b';
+        showError('Cannot reach API: ' + e.message);
+        document.getElementById('task-list').innerHTML = '';
+      }
+    }
+
+    // ── Render ──
+    function renderTasks() {
+      const filtered = allTasks.filter(t => {
+        if (currentFilter === 'pending') return !t.completed;
+        if (currentFilter === 'done')    return t.completed;
+        return true;
+      });
+
+      document.getElementById('count-display').textContent = allTasks.length;
+
+      const list = document.getElementById('task-list');
+
+      if (filtered.length === 0) {
+        list.innerHTML = `
+          <div class="empty-state">
+            <div class="big-num">∅</div>
+            <p>${currentFilter === 'all' ? 'No tasks yet — add one above' : 'No ' + currentFilter + ' tasks'}</p>
+          </div>`;
+        return;
+      }
+
+      list.innerHTML = filtered.map(t => taskHTML(t)).join('');
+    }
+
+    function taskHTML(t) {
+      const safeTitle = esc(t.title);
+      const safeDesc  = esc(t.description || '');
+      const safeId    = esc(t.id);
+      return `
+        <div class="task-card ${t.completed ? 'completed' : ''}" id="card-${t.id}">
+          <div class="task-check" onclick="toggleTask('${safeId}', ${!t.completed})">
+            <svg width="12" height="10" viewBox="0 0 12 10" fill="none">
+              <polyline points="1,5 4.5,8.5 11,1" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div class="task-content">
+            <div class="task-title">${safeTitle}</div>
+            ${safeDesc ? `<div class="task-desc">${safeDesc}</div>` : ''}
+            <div class="task-meta">
+              <span class="tag ${t.completed ? 'tag-done' : 'tag-pending'}">
+                ${t.completed ? 'Done' : 'Pending'}
+              </span>
+            </div>
+            <!-- Inline edit form -->
+            <div class="edit-form" id="edit-${t.id}">
+              <div class="form-row">
+                <input type="text" id="edit-title-${t.id}" value="${safeTitle}" placeholder="Title"/>
+              </div>
+              <div class="form-row">
+                <textarea id="edit-desc-${t.id}" placeholder="Description">${safeDesc}</textarea>
+                <div style="display:flex;gap:6px;align-items:flex-end">
+                  <button class="btn btn-primary" onclick="saveEdit('${safeId}')">Save</button>
+                  <button class="btn btn-ghost"   onclick="cancelEdit('${safeId}')">×</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="task-actions">
+            <button class="btn btn-ghost" style="padding:6px 12px;font-size:0.7rem" onclick="openEdit('${safeId}')">Edit</button>
+            <button class="btn btn-danger" onclick="deleteTask('${safeId}')">Del</button>
+          </div>
+        </div>`;
+    }
+
+    // ── CRUD ──
+    async function createTask() {
+      const title = document.getElementById('new-title').value.trim();
+      if (!title) { toast('Title is required'); return; }
+      const desc = document.getElementById('new-desc').value.trim();
+      try {
+        const task = await api('POST', '/tasks', { title, description: desc });
+        allTasks.unshift(task);
+        document.getElementById('new-title').value = '';
+        document.getElementById('new-desc').value = '';
+        renderTasks();
+        toast('Task created');
+      } catch (e) { showError(e.message); }
+    }
+
+    async function toggleTask(id, completed) {
+      try {
+        const updated = await api('PATCH', `/tasks/${id}`, { completed });
+        updateLocal(updated);
+        renderTasks();
+        toast(completed ? 'Marked done ✓' : 'Marked pending');
+      } catch (e) { showError(e.message); }
+    }
+
+    async function deleteTask(id) {
+      const card = document.getElementById(`card-${id}`);
+      if (card) card.classList.add('removing');
+      try {
+        await api('DELETE', `/tasks/${id}`);
+        allTasks = allTasks.filter(t => t.id !== id);
+        setTimeout(renderTasks, 200);
+        toast('Task deleted');
+      } catch (e) {
+        if (card) card.classList.remove('removing');
+        showError(e.message);
+      }
+    }
+
+    function openEdit(id) {
+      document.querySelectorAll('.edit-form').forEach(f => f.classList.remove('open'));
+      document.getElementById(`edit-${id}`).classList.add('open');
+    }
+
+    function cancelEdit(id) {
+      document.getElementById(`edit-${id}`).classList.remove('open');
+    }
+
+    async function saveEdit(id) {
+      const title = document.getElementById(`edit-title-${id}`).value.trim();
+      const desc  = document.getElementById(`edit-desc-${id}`).value.trim();
+      if (!title) { toast('Title cannot be empty'); return; }
+      try {
+        const updated = await api('PATCH', `/tasks/${id}`, { title, description: desc });
+        updateLocal(updated);
+        renderTasks();
+        toast('Task updated');
+      } catch (e) { showError(e.message); }
+    }
+
+    // ── Helpers ──
+    function updateLocal(updated) {
+      const idx = allTasks.findIndex(t => t.id === updated.id);
+      if (idx !== -1) allTasks[idx] = updated;
+    }
+
+    function setFilter(f, btn) {
+      currentFilter = f;
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderTasks();
+    }
+
+    function esc(str) {
+      return String(str)
+        .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+        .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    let toastTimer;
+    function toast(msg) {
+      const el = document.getElementById('toast');
+      el.textContent = msg;
+      el.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => el.classList.remove('show'), 2200);
+    }
+
+    function showError(msg) {
+      const el = document.getElementById('error-banner');
+      el.textContent = '⚠ ' + msg;
+      el.style.display = 'block';
+    }
+
+    function hideError() {
+      document.getElementById('error-banner').style.display = 'none';
+    }
+
+    // ── Init ──
+    loadTasks();
+  </script>
+</body>
+</html>
