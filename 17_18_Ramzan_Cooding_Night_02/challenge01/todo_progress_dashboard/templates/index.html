@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Task Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #F5F0E8;
+      --paper:     #FDFAF4;
+      --ink:       #1A1714;
+      --ink-light: #6B6560;
+      --rule:      #D4CCBC;
+      --accent:    #C8440A;
+      --accent-bg: #FFF0EB;
+      --done-bg:   #E8F0E4;
+      --done-ink:  #4A6B3A;
+      --shadow:    4px 4px 0px #1A1714;
+      --radius:    2px;
+    }
+
+    html { font-size: 16px; }
+
+    body {
+      background-color: var(--bg);
+      background-image:
+        repeating-linear-gradient(
+          0deg,
+          transparent,
+          transparent 31px,
+          var(--rule) 31px,
+          var(--rule) 32px
+        );
+      min-height: 100vh;
+      font-family: 'DM Mono', monospace;
+      color: var(--ink);
+      padding: 40px 20px 80px;
+    }
+
+    /* ── HEADER ── */
+    header {
+      max-width: 960px;
+      margin: 0 auto 48px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      border-bottom: 3px solid var(--ink);
+      padding-bottom: 12px;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .logo-block h1 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(3rem, 8vw, 5.5rem);
+      line-height: 0.9;
+      letter-spacing: 0.02em;
+      color: var(--ink);
+    }
+
+    .logo-block p {
+      font-size: 0.7rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--ink-light);
+      margin-top: 6px;
+    }
+
+    .header-right {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 8px;
+    }
+
+    .api-badge {
+      font-size: 0.65rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      background: var(--ink);
+      color: var(--bg);
+      padding: 4px 10px;
+      border-radius: var(--radius);
+      white-space: nowrap;
+    }
+
+    .api-badge #api-status        { color: #90EE90; font-weight: 500; }
+    .api-badge #api-status.dead   { color: #ff6b6b; }
+
+    .nav-link {
+      font-size: 0.65rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--ink-light);
+      text-decoration: none;
+      border: 1.5px solid var(--rule);
+      padding: 4px 12px;
+      border-radius: var(--radius);
+      transition: border-color 0.15s, color 0.15s;
+    }
+
+    .nav-link:hover { border-color: var(--ink); color: var(--ink); }
+
+    /* ── SHELL ── */
+    .shell { max-width: 960px; margin: 0 auto; }
+
+    /* ── ERROR BANNER ── */
+    #error-banner {
+      display: none;
+      background: var(--accent-bg);
+      border: 2px solid var(--accent);
+      color: var(--accent);
+      font-size: 0.75rem;
+      letter-spacing: 0.05em;
+      padding: 10px 16px;
+      border-radius: var(--radius);
+      margin-bottom: 28px;
+    }
+
+    /* ── SECTION LABEL (like a ruled divider) ── */
+    .section-label {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .section-label-text {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1rem;
+      letter-spacing: 0.14em;
+      color: var(--ink-light);
+      white-space: nowrap;
+    }
+
+    .section-label-line {
+      flex: 1;
+      height: 1px;
+      background: var(--rule);
+    }
+
+    /* ── STAT CARDS ── */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 16px;
+      margin-bottom: 36px;
+    }
+
+    .stat-card {
+      background: var(--paper);
+      border: 2px solid var(--ink);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 20px 22px;
+      position: relative;
+      animation: fadeUp 0.35s ease both;
+    }
+
+    .stat-card:nth-child(1) { animation-delay: 0.04s; }
+    .stat-card:nth-child(2) { animation-delay: 0.09s; }
+    .stat-card:nth-child(3) { animation-delay: 0.14s; }
+    .stat-card:nth-child(4) { animation-delay: 0.19s; }
+
+    /* accent top bar */
+    .stat-card::before {
+      content: attr(data-label);
+      position: absolute;
+      top: -11px; left: 14px;
+      font-size: 0.58rem;
+      font-weight: 500;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      padding: 2px 9px;
+      border-radius: var(--radius);
+      color: #fff;
+    }
+
+    .stat-card.c-total::before   { background: var(--ink); }
+    .stat-card.c-done::before    { background: var(--done-ink); }
+    .stat-card.c-pending::before { background: var(--accent); }
+    .stat-card.c-rate::before    { background: var(--ink-light); }
+
+    .stat-value {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 3.8rem;
+      line-height: 1;
+      letter-spacing: 0.02em;
+      margin-top: 6px;
+    }
+
+    .stat-card.c-total   .stat-value { color: var(--ink); }
+    .stat-card.c-done    .stat-value { color: var(--done-ink); }
+    .stat-card.c-pending .stat-value { color: var(--accent); }
+    .stat-card.c-rate    .stat-value { color: var(--ink-light); }
+
+    .stat-suffix {
+      font-family: 'Instrument Serif', serif;
+      font-style: italic;
+      font-size: 0.85rem;
+      color: var(--ink-light);
+      margin-top: 4px;
+    }
+
+    /* ── MID ROW ── */
+    .mid-row {
+      display: grid;
+      grid-template-columns: 1fr 1.55fr;
+      gap: 20px;
+      margin-bottom: 36px;
+    }
+
+    @media (max-width: 680px) { .mid-row { grid-template-columns: 1fr; } }
+
+    /* ── PANEL ── */
+    .panel {
+      background: var(--paper);
+      border: 2px solid var(--ink);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      animation: fadeUp 0.4s ease both;
+    }
+
+    .panel-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 18px;
+      background: var(--ink);
+      border-bottom: 2px solid var(--ink);
+    }
+
+    .panel-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1rem;
+      letter-spacing: 0.12em;
+      color: var(--bg);
+    }
+
+    .panel-tag {
+      font-size: 0.58rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      background: var(--bg);
+      color: var(--ink-light);
+      padding: 2px 8px;
+      border-radius: var(--radius);
+    }
+
+    .panel-body { padding: 22px 20px; }
+
+    /* ── DONUT GAUGE ── */
+    .gauge-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      padding: 28px 20px 22px;
+    }
+
+    .gauge-svg-wrap { position: relative; width: 170px; height: 170px; }
+
+    .gauge-svg { width: 170px; height: 170px; transform: rotate(-90deg); }
+
+    /* r=75 → C ≈ 471.24 */
+    .gauge-track {
+      fill: none;
+      stroke: var(--bg);
+      stroke-width: 15;
+    }
+
+    .gauge-track-border {
+      fill: none;
+      stroke: var(--rule);
+      stroke-width: 15;
+    }
+
+    .gauge-done {
+      fill: none;
+      stroke: var(--done-ink);
+      stroke-width: 15;
+      stroke-dasharray: 471.24;
+      stroke-dashoffset: 471.24;
+      transition: stroke-dashoffset 1.1s cubic-bezier(.4,0,.2,1);
+    }
+
+    .gauge-pending {
+      fill: none;
+      stroke: var(--accent);
+      stroke-width: 15;
+      stroke-dasharray: 471.24;
+      stroke-dashoffset: 471.24;
+      transition: stroke-dashoffset 1.1s cubic-bezier(.4,0,.2,1) 0.08s;
+      transform-origin: 85px 85px;
+    }
+
+    .gauge-center {
+      position: absolute; inset: 0;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+    }
+
+    .gauge-pct {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 3rem;
+      line-height: 1;
+      color: var(--ink);
+    }
+
+    .gauge-pct-sub {
+      font-family: 'Instrument Serif', serif;
+      font-style: italic;
+      font-size: 0.75rem;
+      color: var(--ink-light);
+      margin-top: 2px;
+    }
+
+    .gauge-legend {
+      display: flex;
+      gap: 20px;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 0.65rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--ink-light);
+    }
+
+    .legend-dot {
+      width: 10px; height: 10px;
+      border-radius: var(--radius);
+      border: 2px solid;
+    }
+
+    .legend-dot.done    { background: var(--done-bg);   border-color: var(--done-ink); }
+    .legend-dot.pending { background: var(--accent-bg); border-color: var(--accent); }
+
+    /* ── BAR LIST ── */
+    .bar-list { display: flex; flex-direction: column; gap: 20px; }
+
+    .bar-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 7px;
+    }
+
+    .bar-name {
+      font-size: 0.68rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--ink-light);
+    }
+
+    .bar-val {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.15rem;
+      letter-spacing: 0.04em;
+    }
+
+    .bar-val.done    { color: var(--done-ink); }
+    .bar-val.pending { color: var(--accent); }
+
+    .bar-track {
+      height: 10px;
+      background: var(--bg);
+      border: 1.5px solid var(--rule);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      height: 100%;
+      width: 0%;
+      border-radius: var(--radius);
+      transition: width 1s cubic-bezier(.4,0,.2,1);
+    }
+
+    .bar-fill.done    { background: var(--done-ink); }
+    .bar-fill.pending { background: var(--accent); }
+
+    .divider {
+      border: none;
+      border-top: 1px solid var(--rule);
+      margin: 18px 0;
+    }
+
+    /* meta key-value table */
+    .meta-table { width: 100%; border-collapse: collapse; }
+
+    .meta-table td {
+      padding: 7px 0;
+      font-size: 0.72rem;
+      border-bottom: 1px solid var(--rule);
+      vertical-align: middle;
+    }
+
+    .meta-table tr:last-child td { border-bottom: none; }
+
+    .meta-key {
+      color: var(--ink-light);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      font-size: 0.63rem;
+    }
+
+    .meta-val {
+      text-align: right;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.1rem;
+      letter-spacing: 0.04em;
+      color: var(--ink);
+    }
+
+    /* ── TASK TABLE ── */
+    .task-table { width: 100%; border-collapse: collapse; }
+
+    .task-table th {
+      text-align: left;
+      padding: 8px 14px;
+      font-size: 0.6rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--bg);
+      background: var(--ink);
+      white-space: nowrap;
+    }
+
+    .task-table td {
+      padding: 11px 14px;
+      border-bottom: 1px solid var(--rule);
+      vertical-align: middle;
+      font-size: 0.8rem;
+    }
+
+    .task-table tbody tr:last-child td { border-bottom: none; }
+    .task-table tbody tr:hover { background: var(--bg); }
+
+    .row-num {
+      font-family: 'Instrument Serif', serif;
+      font-style: italic;
+      color: var(--ink-light);
+    }
+
+    .task-title-cell { font-weight: 500; color: var(--ink); }
+
+    .task-desc-cell {
+      color: var(--ink-light);
+      font-size: 0.72rem;
+      max-width: 240px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Same tags as index.html */
+    .tag {
+      display: inline-block;
+      padding: 2px 10px;
+      border-radius: 99px;
+      border: 1.5px solid;
+      font-size: 0.62rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .tag-done    { color: var(--done-ink); border-color: var(--done-ink); background: var(--done-bg); }
+    .tag-pending { color: var(--accent);   border-color: var(--accent);   background: var(--accent-bg); }
+
+    .id-cell {
+      font-size: 0.62rem;
+      color: var(--rule);
+      letter-spacing: 0.04em;
+    }
+
+    /* ── EMPTY / LOADING ── */
+    .center-msg {
+      text-align: center;
+      padding: 48px 20px;
+      color: var(--ink-light);
+      font-size: 0.75rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .empty-big {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 4rem;
+      color: var(--rule);
+      line-height: 1;
+      display: block;
+      margin-bottom: 8px;
+    }
+
+    .spinner {
+      width: 18px; height: 18px;
+      border: 2px solid var(--rule);
+      border-top-color: var(--ink);
+      border-radius: 50%;
+      animation: spin 0.65s linear infinite;
+      margin: 0 auto 12px;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── GHOST BUTTON (matches index.html) ── */
+    .btn-ghost {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.72rem;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 5px 14px;
+      border: 1.5px solid var(--rule);
+      border-radius: var(--radius);
+      background: transparent;
+      color: var(--ink-light);
+      cursor: pointer;
+      transition: border-color 0.15s, color 0.15s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-ghost:hover  { border-color: var(--ink); color: var(--ink); }
+    .btn-ghost:active { transform: translate(1px, 1px); }
+    .btn-ghost svg    { transition: transform 0.35s; }
+    .btn-ghost:hover svg { transform: rotate(180deg); }
+
+    /* ── TOAST (identical to index.html) ── */
+    #toast {
+      position: fixed;
+      bottom: 24px; right: 24px;
+      background: var(--ink);
+      color: var(--bg);
+      font-size: 0.75rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 10px 18px;
+      border-radius: var(--radius);
+      box-shadow: 3px 3px 0 var(--accent);
+      opacity: 0;
+      transform: translateY(10px);
+      transition: opacity 0.2s, transform 0.2s;
+      pointer-events: none;
+      z-index: 100;
+    }
+
+    #toast.show { opacity: 1; transform: translateY(0); }
+
+    /* ── ANIMATIONS ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 500px) {
+      .stats-row { grid-template-columns: 1fr 1fr; }
+      .stat-value { font-size: 2.6rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header>
+    <div class="logo-block">
+      <h1>Progress<br/>Board</h1>
+      <p>Ramzan Coding Night / Challenge 01</p>
+    </div>
+    <div class="header-right">
+      <div class="api-badge">
+        API <span id="api-status">●</span> <span id="api-url-display"></span>
+      </div>
+      <a href="/" class="nav-link">← Task Board</a>
+    </div>
+  </header>
+
+  <div class="shell">
+
+    <!-- ERROR BANNER -->
+    <div id="error-banner"></div>
+
+    <!-- ── STAT CARDS ── -->
+    <div class="section-label">
+      <span class="section-label-text">Overview</span>
+      <div class="section-label-line"></div>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat-card c-total" data-label="Total Tasks">
+        <div class="stat-value" id="s-total">—</div>
+        <div class="stat-suffix">registered</div>
+      </div>
+      <div class="stat-card c-done" data-label="Completed">
+        <div class="stat-value" id="s-done">—</div>
+        <div class="stat-suffix">finished</div>
+      </div>
+      <div class="stat-card c-pending" data-label="Pending">
+        <div class="stat-value" id="s-pending">—</div>
+        <div class="stat-suffix">outstanding</div>
+      </div>
+      <div class="stat-card c-rate" data-label="Completion Rate">
+        <div class="stat-value" id="s-rate">—</div>
+        <div class="stat-suffix">percent done</div>
+      </div>
+    </div>
+
+    <!-- ── MID ROW ── -->
+    <div class="section-label">
+      <span class="section-label-text">Analysis</span>
+      <div class="section-label-line"></div>
+    </div>
+
+    <div class="mid-row">
+
+      <!-- Donut gauge -->
+      <div class="panel">
+        <div class="panel-head">
+          <span class="panel-title">Progress Arc</span>
+          <span class="panel-tag">Gauge</span>
+        </div>
+        <div class="gauge-wrap">
+          <div class="gauge-svg-wrap">
+            <svg class="gauge-svg" viewBox="0 0 170 170">
+              <circle class="gauge-track-border" cx="85" cy="85" r="75"/>
+              <circle class="gauge-track"        cx="85" cy="85" r="75"/>
+              <circle class="gauge-pending"      cx="85" cy="85" r="75" id="gauge-pending"/>
+              <circle class="gauge-done"         cx="85" cy="85" r="75" id="gauge-done"/>
+            </svg>
+            <div class="gauge-center">
+              <div class="gauge-pct" id="gauge-pct">0%</div>
+              <div class="gauge-pct-sub">complete</div>
+            </div>
+          </div>
+          <div class="gauge-legend">
+            <div class="legend-item">
+              <div class="legend-dot done"></div> Done
+            </div>
+            <div class="legend-item">
+              <div class="legend-dot pending"></div> Pending
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bars + meta -->
+      <div class="panel" style="animation-delay:0.08s">
+        <div class="panel-head">
+          <span class="panel-title">Distribution</span>
+          <span class="panel-tag">Breakdown</span>
+        </div>
+        <div class="panel-body">
+          <div class="bar-list">
+            <div>
+              <div class="bar-meta">
+                <span class="bar-name">Completed</span>
+                <span class="bar-val done" id="bar-done-val">0</span>
+              </div>
+              <div class="bar-track">
+                <div class="bar-fill done" id="bar-done-fill"></div>
+              </div>
+            </div>
+            <div>
+              <div class="bar-meta">
+                <span class="bar-name">Pending</span>
+                <span class="bar-val pending" id="bar-pend-val">0</span>
+              </div>
+              <div class="bar-track">
+                <div class="bar-fill pending" id="bar-pend-fill"></div>
+              </div>
+            </div>
+          </div>
+
+          <hr class="divider"/>
+
+          <table class="meta-table">
+            <tr>
+              <td class="meta-key">Remaining work</td>
+              <td class="meta-val" id="meta-remain">—</td>
+            </tr>
+            <tr>
+              <td class="meta-key">Have description</td>
+              <td class="meta-val" id="meta-desc">—</td>
+            </tr>
+            <tr>
+              <td class="meta-key">Done w/ description</td>
+              <td class="meta-val" id="meta-done-desc">—</td>
+            </tr>
+            <tr>
+              <td class="meta-key">No description</td>
+              <td class="meta-val" id="meta-no-desc">—</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ── TASK TABLE ── -->
+    <div class="section-label">
+      <span class="section-label-text">Task Registry</span>
+      <div class="section-label-line"></div>
+      <button class="btn-ghost" onclick="loadData()">
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+          <path d="M11 6A5 5 0 1 1 6 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          <polyline points="11,1 11,6 6,6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Refresh
+      </button>
+    </div>
+
+    <div class="panel" style="animation-delay:0.18s">
+      <div class="panel-head">
+        <span class="panel-title">All Tasks</span>
+        <span class="panel-tag" id="table-count">— entries</span>
+      </div>
+      <div id="table-wrap">
+        <div class="center-msg"><div class="spinner"></div>Loading…</div>
+      </div>
+    </div>
+
+  </div><!-- /shell -->
+
+  <div id="toast"></div>
+
+  <script>
+    const API_URL  = "{{ api_url }}";
+    const CIRC     = 2 * Math.PI * 75; // 471.24
+
+    // ── Init ──
+    document.getElementById('api-url-display').textContent =
+      API_URL.replace(/https?:\/\//, '');
+
+    // ── Counter animation ──
+    function animNum(elId, target, suffix = '') {
+      const el = document.getElementById(elId);
+      const from = parseFloat(el.textContent) || 0;
+      const dur = 700, step = 14;
+      let t = 0;
+      const timer = setInterval(() => {
+        t += step;
+        const v = from + (target - from) * Math.min(t / dur, 1);
+        el.textContent = (Number.isInteger(target) ? Math.round(v) : v.toFixed(1)) + suffix;
+        if (t >= dur) clearInterval(timer);
+      }, step);
+    }
+
+    // ── Gauge ──
+    function setGauge(donePct, pendingPct) {
+      // done arc
+      const doneOff = CIRC - (donePct / 100) * CIRC;
+      document.getElementById('gauge-done').style.strokeDashoffset = doneOff;
+
+      // pending arc starts after done portion
+      const pendOff = CIRC - (pendingPct / 100) * CIRC;
+      const pendRot = (donePct / 100) * 360;
+      const gp = document.getElementById('gauge-pending');
+      gp.style.strokeDashoffset = pendOff;
+      gp.style.transform = `rotate(${pendRot}deg)`;
+      gp.style.transformOrigin = '85px 85px';
+    }
+
+    // ── Load data ──
+    async function loadData() {
+      try {
+        const res = await fetch(`${API_URL}/tasks`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const tasks = await res.json();
+
+        const si = document.getElementById('api-status');
+        si.textContent = '●'; si.className = '';
+        hideError();
+
+        const total   = tasks.length;
+        const done    = tasks.filter(t => t.completed).length;
+        const pending = total - done;
+        const pct     = total ? (done / total * 100) : 0;
+        const withDesc    = tasks.filter(t => t.description && t.description.trim()).length;
+        const doneDesc    = tasks.filter(t => t.completed && t.description && t.description.trim()).length;
+        const noDesc      = total - withDesc;
+
+        // Stat cards
+        animNum('s-total',   total);
+        animNum('s-done',    done);
+        animNum('s-pending', pending);
+        animNum('s-rate',    Math.round(pct), '%');
+
+        // Gauge
+        document.getElementById('gauge-pct').textContent = Math.round(pct) + '%';
+        setTimeout(() => setGauge(
+          total ? done / total * 100 : 0,
+          total ? pending / total * 100 : 0
+        ), 120);
+
+        // Bars
+        document.getElementById('bar-done-val').textContent = done;
+        document.getElementById('bar-pend-val').textContent = pending;
+        setTimeout(() => {
+          document.getElementById('bar-done-fill').style.width =
+            total ? (done / total * 100) + '%' : '0%';
+          document.getElementById('bar-pend-fill').style.width =
+            total ? (pending / total * 100) + '%' : '0%';
+        }, 160);
+
+        // Meta
+        document.getElementById('meta-remain').textContent    = pending + ' tasks';
+        document.getElementById('meta-desc').textContent      = withDesc;
+        document.getElementById('meta-done-desc').textContent = doneDesc;
+        document.getElementById('meta-no-desc').textContent   = noDesc;
+
+        // Table
+        document.getElementById('table-count').textContent = total + ' entries';
+        renderTable(tasks);
+
+        toast('Data refreshed');
+      } catch (e) {
+        const si = document.getElementById('api-status');
+        si.textContent = '●'; si.className = 'dead';
+        showError('Cannot reach API: ' + e.message);
+        document.getElementById('table-wrap').innerHTML =
+          `<div class="center-msg"><span class="empty-big">✕</span>API unreachable</div>`;
+      }
+    }
+
+    function renderTable(tasks) {
+      const wrap = document.getElementById('table-wrap');
+      if (!tasks.length) {
+        wrap.innerHTML =
+          `<div class="center-msg"><span class="empty-big">∅</span>No tasks yet</div>`;
+        return;
+      }
+
+      const rows = tasks.map((t, i) => `
+        <tr>
+          <td><span class="row-num">${String(i + 1).padStart(2, '0')}</span></td>
+          <td><span class="task-title-cell">${esc(t.title)}</span></td>
+          <td class="task-desc-cell">${
+            t.description && t.description.trim()
+              ? esc(t.description)
+              : '<span style="color:var(--rule)">—</span>'
+          }</td>
+          <td>
+            <span class="tag ${t.completed ? 'tag-done' : 'tag-pending'}">
+              ${t.completed ? 'Done' : 'Pending'}
+            </span>
+          </td>
+          <td class="id-cell">${t.id.slice(0, 8).toUpperCase()}…</td>
+        </tr>`).join('');
+
+      wrap.innerHTML = `
+        <table class="task-table">
+          <thead>
+            <tr>
+              <th style="width:44px">#</th>
+              <th>Title</th>
+              <th>Description</th>
+              <th style="width:110px">Status</th>
+              <th style="width:96px">ID</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>`;
+    }
+
+    function esc(s) {
+      return String(s)
+        .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+        .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    let toastTimer;
+    function toast(msg) {
+      const el = document.getElementById('toast');
+      el.textContent = msg;
+      el.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => el.classList.remove('show'), 2000);
+    }
+
+    function showError(msg) {
+      const el = document.getElementById('error-banner');
+      el.textContent = '⚠ ' + msg;
+      el.style.display = 'block';
+    }
+
+    function hideError() {
+      document.getElementById('error-banner').style.display = 'none';
+    }
+
+    // ── Boot ──
+    loadData();
+    setInterval(loadData, 30000);
+  </script>
+</body>
+</html>

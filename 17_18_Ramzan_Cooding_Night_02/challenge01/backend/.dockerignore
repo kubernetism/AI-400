@@ -1,0 +1,16 @@
+**/__pycache__
+**/*.pyc
+**/*.pyo
+**/.venv
+**/.mypy_cache
+**/.pytest_cache
+**/.env
+**/.git
+**/.gitignore
+**/Dockerfile*
+**/.dockerignore
+**/docker-compose*
+**/compose.y*ml
+**/README.md
+**/LICENSE
+**/.DS_Store
