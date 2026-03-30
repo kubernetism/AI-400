@@ -1,0 +1,10 @@
+apiVersion: v1
+data:
+  OPEN_AI_KEY: sk-Shdn30x=3n0920nshd3930djdhwjJGD0dnHdl(hdld93h
+kind: ConfigMap
+metadata:
+  creationTimestamp: "2026-03-30T16:33:01Z"
+  name: openai-api-config
+  namespace: dev-team
+  resourceVersion: "352799"
+  uid: 6feb05fc-162a-4bcd-b378-2a8e0d05e090

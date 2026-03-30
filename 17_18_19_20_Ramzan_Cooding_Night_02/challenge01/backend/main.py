@@ -14,7 +14,9 @@ app.add_middleware(
 )
 
 # In-memory task storage
-tasks: dict[str, dict] = {}
+tasks: dict[str, dict] = {  
+    
+}
 
 
 class TaskCreate(BaseModel):
