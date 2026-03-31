@@ -9,6 +9,7 @@ from agents.extensions.models.litellm_model import LitellmModel
 load_dotenv()
 
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+print(f"GEMINI_API_KEY: {'set' if GEMINI_API_KEY else 'not set'}")  # Debug print to check if the key is loadeds
 if not GEMINI_API_KEY:
     raise RuntimeError("GEMINI_API_KEY not set in .env")
 
@@ -17,7 +18,7 @@ set_tracing_disabled(True)
 
 # Create the Gemini model via LiteLLM
 gemini_model = LitellmModel(
-    model="gemini-2.0-flash",
+    model="gemini/gemini-2.0-flash-lite",
     api_key=GEMINI_API_KEY,
 )
 
