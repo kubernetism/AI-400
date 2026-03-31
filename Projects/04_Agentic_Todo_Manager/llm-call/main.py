@@ -4,28 +4,18 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from agents import Agent, Runner, set_tracing_disabled
-from agents.extensions.models.litellm_model import LitellmModel
 
 load_dotenv()
 
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-print(f"GEMINI_API_KEY: {'set' if GEMINI_API_KEY else 'not set'}")  # Debug print to check if the key is loadeds
-if not GEMINI_API_KEY:
-    raise RuntimeError("GEMINI_API_KEY not set in .env")
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+if not OPENAI_API_KEY:
+    raise RuntimeError("OPENAI_API_KEY not set in .env")
 
-# Disable OpenAI tracing since we're using Gemini
 set_tracing_disabled(True)
 
-# Create the Gemini model via LiteLLM
-gemini_model = LitellmModel(
-    model="gemini/gemini-2.0-flash-lite",
-    api_key=GEMINI_API_KEY,
-)
-
-# Create the solver agent
 solver_agent = Agent(
     name="TaskSolver",
-    model=gemini_model,
+    model="gpt-4o-mini",
     instructions="""You are an expert task solver. When given a task or subtask,
 provide a complete, actionable solution. Be concise but thorough.
 
@@ -58,7 +48,7 @@ class LLMResponse(BaseModel):
 
 @app.get("/health")
 def health():
-    return {"status": "healthy", "model": "gemini-2.0-flash", "provider": "litellm"}
+    return {"status": "healthy", "model": "gpt-4o-mini", "provider": "openai"}
 
 
 @app.post("/llm", response_model=LLMResponse)

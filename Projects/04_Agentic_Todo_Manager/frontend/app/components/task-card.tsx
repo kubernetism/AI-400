@@ -44,10 +44,10 @@ export default function TaskCard({
   const hasSubtasks = totalCount > 0;
   const allDone = hasSubtasks && completedCount === totalCount;
 
-  // Find the subtask with an LLM response to show in the response card
+  // Only show response card when explicitly requested via LLM-Call button
   const activeResponse = showLLMFor
     ? task.subtasks.find((s) => s.id === showLLMFor && s.llm_response)
-    : task.subtasks.find((s) => s.llm_response);
+    : null;
 
   function handleDelete() {
     setRemoving(true);
@@ -278,10 +278,7 @@ export default function TaskCard({
             <LLMResponseCard
               subtaskTitle={activeResponse.title}
               response={activeResponse.llm_response!}
-              onClose={() => {
-                onDismissLLMResponse(task.id, activeResponse.id);
-                setShowLLMFor(null);
-              }}
+              onClose={() => setShowLLMFor(null)}
             />
           </div>
         )}

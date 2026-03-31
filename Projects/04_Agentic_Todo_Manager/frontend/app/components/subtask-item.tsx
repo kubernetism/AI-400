@@ -121,19 +121,7 @@ export default function SubtaskItem({
         </button>
       </div>
 
-      {/* LLM Response Inline Preview */}
-      {subtask.llm_response && (
-        <div
-          className="ml-8 px-3 py-1.5 bg-accent-bg/50 border-l-[3px] border-l-accent
-            text-[0.7rem] text-ink-light font-mono truncate cursor-pointer
-            hover:text-ink transition-colors duration-150"
-          title="Click the task to see full response"
-        >
-          <span className="text-accent font-medium">AI:</span>{" "}
-          {subtask.llm_response.slice(0, 100)}
-          {subtask.llm_response.length > 100 && "..."}
-        </div>
-      )}
+      {/* No inline preview — click the "Solved" button to view cached response */}
     </div>
   );
 }

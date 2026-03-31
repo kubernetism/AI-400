@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import type { Task, Subtask } from "./components/types";
 import TaskCard from "./components/task-card";
 import AddTaskForm from "./components/add-task-form";
@@ -27,6 +27,9 @@ async function api<T>(method: string, path: string, body?: unknown): Promise<T> 
 
 export default function Home() {
   const [tasks, setTasks] = useState<Task[]>([]);
+  const tasksRef = useRef<Task[]>([]);
+  // Keep ref in sync so async callbacks always see latest state
+  tasksRef.current = tasks;
   const [filter, setFilter] = useState<Filter>("all");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -36,10 +39,12 @@ export default function Home() {
   const loadTasks = useCallback(async () => {
     try {
       const data = await api<Task[]>("GET", "/tasks");
-      // Ensure each task has a subtasks array
       const normalized = data.map((t) => ({
         ...t,
-        subtasks: t.subtasks || [],
+        subtasks: (t.subtasks || []).map((s) => ({
+          ...s,
+          llm_loading: false,
+        })),
       }));
       setTasks(normalized);
       setApiOnline(true);
@@ -60,37 +65,62 @@ export default function Home() {
     setToast(msg);
   }
 
+  // Helper: save subtasks to backend
+  async function saveSubtasks(taskId: string, subtasks: Subtask[]) {
+    try {
+      await api("PATCH", `/tasks/${taskId}`, {
+        subtasks: subtasks.map((s) => ({
+          id: s.id,
+          title: s.title,
+          completed: s.completed,
+          llm_response: s.llm_response || null,
+        })),
+      });
+    } catch {
+      // silent — local state is already updated
+    }
+  }
+
   // ── Task CRUD ──
 
   async function handleAdd(title: string, subtaskTitles: string[]) {
+    const subtasks: Subtask[] = subtaskTitles.map((st) => ({
+      id: crypto.randomUUID(),
+      title: st,
+      completed: false,
+    }));
+
     try {
-      const subtasks: Subtask[] = subtaskTitles.map((st) => ({
-        id: crypto.randomUUID(),
-        title: st,
-        completed: false,
-      }));
-
-      const taskPayload = { title, description: "", subtasks };
-      const created = await api<Task>("POST", "/tasks", taskPayload);
-
-      // Ensure subtasks come back (backend might not support them yet)
+      const created = await api<Task>("POST", "/tasks", {
+        title,
+        description: "",
+        subtasks,
+      });
       const normalized: Task = {
         ...created,
-        subtasks: created.subtasks || subtasks,
+        subtasks: (created.subtasks || subtasks).map((s) => ({
+          ...s,
+          llm_loading: false,
+        })),
       };
-      setTasks((prev) => [normalized, ...prev]);
-      showToast("Task created");
-    } catch (e) {
-      // If backend doesn't support subtasks yet, store locally
+      setTasks((prev) => {
+        const updated = [normalized, ...prev];
+        // Update ref immediately so auto-solve can find the task
+        tasksRef.current = updated;
+        return updated;
+      });
+      showToast("Task created — solving subtasks...");
+
+      // Auto-solve all subtasks in parallel
+      for (const st of normalized.subtasks) {
+        handleLLMCall(normalized.id, st.id, st.title);
+      }
+    } catch {
       const localTask: Task = {
         id: crypto.randomUUID(),
         title,
         completed: false,
-        subtasks: subtaskTitles.map((st) => ({
-          id: crypto.randomUUID(),
-          title: st,
-          completed: false,
-        })),
+        subtasks,
       };
       setTasks((prev) => [localTask, ...prev]);
       showToast("Task created (local)");
@@ -101,11 +131,10 @@ export default function Home() {
     try {
       const updated = await api<Task>("PATCH", `/tasks/${id}`, { completed });
       setTasks((prev) =>
-        prev.map((t) => (t.id === id ? { ...t, ...updated, subtasks: t.subtasks } : t))
+        prev.map((t) => (t.id === id ? { ...t, ...updated, subtasks: updated.subtasks || t.subtasks } : t))
       );
       showToast(completed ? "Marked done" : "Marked pending");
     } catch {
-      // Fallback: update locally
       setTasks((prev) =>
         prev.map((t) => (t.id === id ? { ...t, completed } : t))
       );
@@ -127,7 +156,7 @@ export default function Home() {
     try {
       const updated = await api<Task>("PATCH", `/tasks/${id}`, { title });
       setTasks((prev) =>
-        prev.map((t) => (t.id === id ? { ...t, ...updated, subtasks: t.subtasks } : t))
+        prev.map((t) => (t.id === id ? { ...t, ...updated, subtasks: updated.subtasks || t.subtasks } : t))
       );
     } catch {
       setTasks((prev) =>
@@ -139,51 +168,51 @@ export default function Home() {
 
   // ── Subtask Operations ──
 
-  function handleSubtaskToggle(taskId: string, subtaskId: string, completed: boolean) {
+  function updateSubtasksAndSave(taskId: string, updater: (subtasks: Subtask[]) => Subtask[]) {
+    let updatedSubtasks: Subtask[] = [];
     setTasks((prev) =>
       prev.map((t) => {
         if (t.id !== taskId) return t;
-        return {
-          ...t,
-          subtasks: t.subtasks.map((s) =>
-            s.id === subtaskId ? { ...s, completed } : s
-          ),
-        };
+        updatedSubtasks = updater(t.subtasks);
+        return { ...t, subtasks: updatedSubtasks };
       })
+    );
+    // Save outside the state updater so the API call has the final data
+    saveSubtasks(taskId, updatedSubtasks);
+  }
+
+  function handleSubtaskToggle(taskId: string, subtaskId: string, completed: boolean) {
+    updateSubtasksAndSave(taskId, (subs) =>
+      subs.map((s) => (s.id === subtaskId ? { ...s, completed } : s))
     );
   }
 
   function handleSubtaskDelete(taskId: string, subtaskId: string) {
-    setTasks((prev) =>
-      prev.map((t) => {
-        if (t.id !== taskId) return t;
-        return {
-          ...t,
-          subtasks: t.subtasks.filter((s) => s.id !== subtaskId),
-        };
-      })
-    );
+    updateSubtasksAndSave(taskId, (subs) => subs.filter((s) => s.id !== subtaskId));
     showToast("Subtask removed");
   }
 
   function handleSubtaskAdd(taskId: string, title: string) {
-    setTasks((prev) =>
-      prev.map((t) => {
-        if (t.id !== taskId) return t;
-        return {
-          ...t,
-          subtasks: [
-            ...t.subtasks,
-            { id: crypto.randomUUID(), title, completed: false },
-          ],
-        };
-      })
-    );
+    const newId = crypto.randomUUID();
+    updateSubtasksAndSave(taskId, (subs) => [
+      ...subs,
+      { id: newId, title, completed: false },
+    ]);
+    // Auto-solve the new subtask
+    handleLLMCall(taskId, newId, title);
   }
 
-  // ── LLM Call ──
+  // ── LLM Call (with caching) ──
 
   async function handleLLMCall(taskId: string, subtaskId: string, subtaskTitle: string) {
+    // Check cache using ref for latest state
+    const currentTask = tasksRef.current.find((t) => t.id === taskId);
+    const currentSubtask = currentTask?.subtasks.find((s) => s.id === subtaskId);
+    if (currentSubtask?.llm_response) {
+      showToast("Showing cached AI solution");
+      return;
+    }
+
     // Set loading state
     setTasks((prev) =>
       prev.map((t) => {
@@ -198,8 +227,8 @@ export default function Home() {
     );
 
     try {
-      // Find the parent task title for context
-      const parentTask = tasks.find((t) => t.id === taskId);
+      // Use ref for latest task title
+      const parentTask = tasksRef.current.find((t) => t.id === taskId);
       const prompt = parentTask
         ? `Task: "${parentTask.title}" — Subtask: "${subtaskTitle}"`
         : subtaskTitle;
@@ -212,6 +241,7 @@ export default function Home() {
       if (!res.ok) throw new Error(`LLM error ${res.status}`);
       const result = await res.json() as { response: string };
 
+      // Update local state
       setTasks((prev) =>
         prev.map((t) => {
           if (t.id !== taskId) return t;
@@ -225,40 +255,36 @@ export default function Home() {
           };
         })
       );
+
+      // Persist only this subtask's response (no race condition)
+      try {
+        await api("PATCH", `/tasks/${taskId}/subtasks/${subtaskId}`, {
+          llm_response: result.response,
+        });
+      } catch {
+        // silent
+      }
       showToast("AI solution ready");
     } catch {
-      // Fallback: mock response for demo when backend doesn't have /llm endpoint
-      const mockResponse = `# Solution for: ${subtaskTitle}\n\nThis is where the LLM response will appear once the backend /llm endpoint is implemented.\n\n## Steps:\n1. Connect the backend to an LLM provider (OpenAI, Gemini, etc.)\n2. Create a POST /llm endpoint that accepts { prompt: string }\n3. Return { response: string } with the LLM's answer\n\n## Example Backend Code:\n\`\`\`python\n@app.post("/llm")\nasync def llm_call(data: dict):\n    # Call your LLM here\n    response = await llm.generate(data["prompt"])\n    return {"response": response}\n\`\`\`\n\nThe response will be displayed in this card automatically.`;
-
       setTasks((prev) =>
         prev.map((t) => {
           if (t.id !== taskId) return t;
           return {
             ...t,
             subtasks: t.subtasks.map((s) =>
-              s.id === subtaskId
-                ? { ...s, llm_response: mockResponse, llm_loading: false }
-                : s
+              s.id === subtaskId ? { ...s, llm_loading: false } : s
             ),
           };
         })
       );
-      showToast("AI solution ready (demo)");
+      showToast("LLM call failed");
     }
   }
 
-  function handleDismissLLMResponse(taskId: string, subtaskId: string) {
-    setTasks((prev) =>
-      prev.map((t) => {
-        if (t.id !== taskId) return t;
-        return {
-          ...t,
-          subtasks: t.subtasks.map((s) =>
-            s.id === subtaskId ? { ...s, llm_response: undefined } : s
-          ),
-        };
-      })
-    );
+  function handleDismissLLMResponse(_taskId: string, _subtaskId: string) {
+    // UI-only dismiss — TaskCard handles hiding via showLLMFor state.
+    // The llm_response stays in state + backend so it can be shown again
+    // without re-calling the LLM.
   }
 
   // ── Filtering ──
