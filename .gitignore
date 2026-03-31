@@ -42,6 +42,11 @@ Projects/04_Agentic_Todo_Manager/frontend/node_modules
 Projects/04_Agentic_Todo_Manager/backend/.venv
 Projects/04_Agentic_Todo_Manager/backend/.env
 Projects/04_Agentic_Todo_Manager/llm-call/.env
+Projects/04_Agentic_Todo_Manager/restart.conversion
+Projects/04_Agentic_Todo_Manager/.claude
+.claude/
+.agents/
+
 21_kubernetes_configmaps_secrets/kubernetes-video/node_modules
 21_kubernetes_configmaps_secrets/kubernetes-video/.venv
 21_kubernetes_configmaps_secrets/kubernetes-video/.env
