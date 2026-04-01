@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
-import type { Task, Subtask } from "./components/types";
+import type { Task, Subtask, AgentInfo } from "./components/types";
 import TaskCard from "./components/task-card";
 import AddTaskForm from "./components/add-task-form";
 import Toast from "./components/toast";
@@ -29,8 +29,8 @@ async function api<T>(method: string, path: string, body?: unknown): Promise<T> 
 export default function Home() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const tasksRef = useRef<Task[]>([]);
-  // Keep ref in sync so async callbacks always see latest state
   tasksRef.current = tasks;
+  const [agents, setAgents] = useState<AgentInfo[]>([]);
   const [filter, setFilter] = useState<Filter>("all");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -58,9 +58,23 @@ export default function Home() {
     }
   }, []);
 
+  // Fetch agents from LLM service
+  const loadAgents = useCallback(async () => {
+    try {
+      const res = await fetch(`${LLM_URL}/agents`);
+      if (res.ok) {
+        const data: AgentInfo[] = await res.json();
+        setAgents(data);
+      }
+    } catch {
+      // LLM service might be offline — agents dropdown will be empty
+    }
+  }, []);
+
   useEffect(() => {
     loadTasks();
-  }, [loadTasks]);
+    loadAgents();
+  }, [loadTasks, loadAgents]);
 
   function showToast(msg: string) {
     setToast(msg);
@@ -75,46 +89,53 @@ export default function Home() {
           title: s.title,
           completed: s.completed,
           llm_response: s.llm_response || null,
+          agent_id: s.agent_id || null,
         })),
       });
     } catch {
-      // silent — local state is already updated
+      // silent
     }
   }
 
   // ── Task CRUD ──
 
-  async function handleAdd(title: string, subtaskTitles: string[]) {
-    const subtasks: Subtask[] = subtaskTitles.map((st) => ({
+  async function handleAdd(title: string, subtaskDrafts: { title: string; agent_id: string }[]) {
+    const subtasks: Subtask[] = subtaskDrafts.map((st) => ({
       id: crypto.randomUUID(),
-      title: st,
+      title: st.title,
       completed: false,
+      agent_id: st.agent_id || undefined,
     }));
 
     try {
       const created = await api<Task>("POST", "/tasks", {
         title,
         description: "",
-        subtasks,
+        subtasks: subtasks.map((s) => ({
+          id: s.id,
+          title: s.title,
+          completed: false,
+          agent_id: s.agent_id,
+        })),
       });
       const normalized: Task = {
         ...created,
-        subtasks: (created.subtasks || subtasks).map((s) => ({
+        subtasks: (created.subtasks || subtasks).map((s, i) => ({
           ...s,
+          agent_id: s.agent_id || subtasks[i]?.agent_id,
           llm_loading: false,
         })),
       };
       setTasks((prev) => {
         const updated = [normalized, ...prev];
-        // Update ref immediately so auto-solve can find the task
         tasksRef.current = updated;
         return updated;
       });
       showToast("Task created — solving subtasks...");
 
-      // Auto-solve all subtasks in parallel
+      // Auto-solve all subtasks in parallel with their assigned agents
       for (const st of normalized.subtasks) {
-        handleLLMCall(normalized.id, st.id, st.title);
+        handleLLMCall(normalized.id, st.id, st.title, st.agent_id);
       }
     } catch {
       const localTask: Task = {
@@ -147,7 +168,7 @@ export default function Home() {
     try {
       await api("DELETE", `/tasks/${id}`);
     } catch {
-      // Continue with local delete even if API fails
+      // Continue with local delete
     }
     setTasks((prev) => prev.filter((t) => t.id !== id));
     showToast("Task deleted");
@@ -178,7 +199,6 @@ export default function Home() {
         return { ...t, subtasks: updatedSubtasks };
       })
     );
-    // Save outside the state updater so the API call has the final data
     saveSubtasks(taskId, updatedSubtasks);
   }
 
@@ -195,18 +215,23 @@ export default function Home() {
 
   function handleSubtaskAdd(taskId: string, title: string) {
     const newId = crypto.randomUUID();
+    const defaultAgent = agents.length > 0 ? agents[0].id : undefined;
     updateSubtasksAndSave(taskId, (subs) => [
       ...subs,
-      { id: newId, title, completed: false },
+      { id: newId, title, completed: false, agent_id: defaultAgent },
     ]);
-    // Auto-solve the new subtask
-    handleLLMCall(taskId, newId, title);
+    handleLLMCall(taskId, newId, title, defaultAgent);
   }
 
-  // ── LLM Call (with caching) ──
+  function handleSubtaskAgentChange(taskId: string, subtaskId: string, agentId: string) {
+    updateSubtasksAndSave(taskId, (subs) =>
+      subs.map((s) => (s.id === subtaskId ? { ...s, agent_id: agentId } : s))
+    );
+  }
 
-  async function handleLLMCall(taskId: string, subtaskId: string, subtaskTitle: string) {
-    // Check cache using ref for latest state
+  // ── LLM Call (with agent routing) ──
+
+  async function handleLLMCall(taskId: string, subtaskId: string, subtaskTitle: string, agentId?: string) {
     const currentTask = tasksRef.current.find((t) => t.id === taskId);
     const currentSubtask = currentTask?.subtasks.find((s) => s.id === subtaskId);
     if (currentSubtask?.llm_response) {
@@ -214,7 +239,9 @@ export default function Home() {
       return;
     }
 
-    // Set loading state
+    // Use the subtask's agent_id if not explicitly passed
+    const resolvedAgent = agentId || currentSubtask?.agent_id;
+
     setTasks((prev) =>
       prev.map((t) => {
         if (t.id !== taskId) return t;
@@ -228,7 +255,6 @@ export default function Home() {
     );
 
     try {
-      // Use ref for latest task title
       const parentTask = tasksRef.current.find((t) => t.id === taskId);
       const prompt = parentTask
         ? `Task: "${parentTask.title}" — Subtask: "${subtaskTitle}"`
@@ -237,12 +263,11 @@ export default function Home() {
       const res = await fetch(`${LLM_URL}/llm`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt }),
+        body: JSON.stringify({ prompt, agent_id: resolvedAgent || null }),
       });
       if (!res.ok) throw new Error(`LLM error ${res.status}`);
-      const result = await res.json() as { response: string };
+      const result = await res.json() as { response: string; agent_id: string; agent_name: string };
 
-      // Update local state
       setTasks((prev) =>
         prev.map((t) => {
           if (t.id !== taskId) return t;
@@ -250,22 +275,22 @@ export default function Home() {
             ...t,
             subtasks: t.subtasks.map((s) =>
               s.id === subtaskId
-                ? { ...s, llm_response: result.response, llm_loading: false }
+                ? { ...s, llm_response: result.response, llm_loading: false, agent_id: result.agent_id }
                 : s
             ),
           };
         })
       );
 
-      // Persist only this subtask's response (no race condition)
       try {
         await api("PATCH", `/tasks/${taskId}/subtasks/${subtaskId}`, {
           llm_response: result.response,
+          agent_id: result.agent_id,
         });
       } catch {
         // silent
       }
-      showToast("AI solution ready");
+      showToast(`AI solution ready (${result.agent_name})`);
     } catch {
       setTasks((prev) =>
         prev.map((t) => {
@@ -284,15 +309,102 @@ export default function Home() {
 
   function handleDismissLLMResponse(_taskId: string, _subtaskId: string) {
     // UI-only dismiss — TaskCard handles hiding via showLLMFor state.
-    // The llm_response stays in state + backend so it can be shown again
-    // without re-calling the LLM.
+  }
+
+  // ── Download RESPONSE.md ──
+
+  async function handleDownloadResponse(taskId: string) {
+    try {
+      const res = await fetch(`${API_URL}/tasks/${taskId}/response`);
+      if (!res.ok) throw new Error("Download failed");
+      const blob = await res.blob();
+      const disposition = res.headers.get("Content-Disposition") || "";
+      const match = disposition.match(/filename="?([^"]+)"?/);
+      const filename = match?.[1] || "RESPONSE.md";
+
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      showToast("RESPONSE.md downloaded");
+    } catch {
+      showToast("Download failed");
+    }
+  }
+
+  // ── Final Review ──
+
+  async function handleReview(taskId: string) {
+    const task = tasksRef.current.find((t) => t.id === taskId);
+    if (!task) return;
+
+    const solutions = task.subtasks
+      .filter((s) => s.llm_response)
+      .map((s) => ({ title: s.title, response: s.llm_response! }));
+
+    if (solutions.length === 0) {
+      showToast("No solutions to review yet");
+      return;
+    }
+
+    showToast("Running Final Review...");
+
+    try {
+      const res = await fetch(`${LLM_URL}/review`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          task_title: task.title,
+          subtask_solutions: solutions,
+        }),
+      });
+      if (!res.ok) throw new Error("Review failed");
+      const result = await res.json() as { response: string };
+
+      // Save review as a special subtask called "Final Review"
+      const reviewId = crypto.randomUUID();
+      setTasks((prev) =>
+        prev.map((t) => {
+          if (t.id !== taskId) return t;
+          // Remove any existing review subtask
+          const filtered = t.subtasks.filter((s) => s.title !== "--- Final Review ---");
+          return {
+            ...t,
+            subtasks: [
+              ...filtered,
+              {
+                id: reviewId,
+                title: "--- Final Review ---",
+                completed: true,
+                llm_response: result.response,
+                agent_id: "reviewer",
+              },
+            ],
+          };
+        })
+      );
+
+      // Persist
+      const updated = tasksRef.current.find((t) => t.id === taskId);
+      if (updated) saveSubtasks(taskId, updated.subtasks);
+
+      showToast("Final Review complete");
+    } catch {
+      showToast("Review failed");
+    }
   }
 
   // ── Filtering ──
 
   const filtered = tasks.filter((t) => {
-    if (filter === "pending") return !t.completed;
-    if (filter === "done") return t.completed;
+    const allSubtasksDone = t.subtasks.length > 0 && t.subtasks.every((s) => s.completed);
+    const isDone = t.completed || allSubtasksDone;
+    if (filter === "pending") return !isDone;
+    if (filter === "done") return isDone;
     return true;
   });
 
@@ -340,7 +452,7 @@ export default function Home() {
                 <path d="M6.5 6.5a1.5 1.5 0 112.5 1.5c0 .75-.75 1-1 1.5" strokeLinecap="round" />
                 <circle cx="8" cy="11.5" r="0.5" fill="currentColor" />
               </svg>
-              LLM-Powered
+              {agents.length > 0 ? `${agents.length} Agents` : "LLM-Powered"}
             </div>
             <NotificationPanel />
           </div>
@@ -349,7 +461,7 @@ export default function Home() {
 
       <main className="max-w-[1120px] mx-auto px-5 pt-8">
         {/* Add Form */}
-        <AddTaskForm onAdd={handleAdd} />
+        <AddTaskForm onAdd={handleAdd} agents={agents} />
 
         {/* Error Banner */}
         {error && (
@@ -424,14 +536,18 @@ export default function Home() {
               <TaskCard
                 key={task.id}
                 task={task}
+                agents={agents}
                 onToggle={handleToggle}
                 onDelete={handleDelete}
                 onUpdate={handleUpdate}
                 onSubtaskToggle={handleSubtaskToggle}
                 onSubtaskDelete={handleSubtaskDelete}
                 onSubtaskAdd={handleSubtaskAdd}
-                onLLMCall={handleLLMCall}
+                onLLMCall={(tid, sid, title) => handleLLMCall(tid, sid, title)}
                 onDismissLLMResponse={handleDismissLLMResponse}
+                onSubtaskAgentChange={handleSubtaskAgentChange}
+                onDownloadResponse={handleDownloadResponse}
+                onReview={handleReview}
                 index={i}
               />
             ))

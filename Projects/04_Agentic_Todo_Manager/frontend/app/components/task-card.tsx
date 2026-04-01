@@ -1,12 +1,13 @@
 "use client";
 
 import { useState, useRef } from "react";
-import type { Task, Subtask } from "./types";
+import type { Task, AgentInfo } from "./types";
 import SubtaskItem from "./subtask-item";
 import LLMResponseCard from "./llm-response-card";
 
 interface TaskCardProps {
   task: Task;
+  agents: AgentInfo[];
   onToggle: (id: string, completed: boolean) => void;
   onDelete: (id: string) => void;
   onUpdate: (id: string, title: string) => void;
@@ -15,11 +16,15 @@ interface TaskCardProps {
   onSubtaskAdd: (taskId: string, title: string) => void;
   onLLMCall: (taskId: string, subtaskId: string, subtaskTitle: string) => void;
   onDismissLLMResponse: (taskId: string, subtaskId: string) => void;
+  onSubtaskAgentChange: (taskId: string, subtaskId: string, agentId: string) => void;
+  onDownloadResponse: (taskId: string) => void;
+  onReview: (taskId: string) => void;
   index: number;
 }
 
 export default function TaskCard({
   task,
+  agents,
   onToggle,
   onDelete,
   onUpdate,
@@ -28,6 +33,9 @@ export default function TaskCard({
   onSubtaskAdd,
   onLLMCall,
   onDismissLLMResponse,
+  onSubtaskAgentChange,
+  onDownloadResponse,
+  onReview,
   index,
 }: TaskCardProps) {
   const [expanded, setExpanded] = useState(task.subtasks.length > 0);
@@ -36,6 +44,9 @@ export default function TaskCard({
   const [newSubtask, setNewSubtask] = useState("");
   const [removing, setRemoving] = useState(false);
   const [showLLMFor, setShowLLMFor] = useState<string | null>(null);
+  const [reviewShown, setReviewShown] = useState(false);
+  const [reviewResponse, setReviewResponse] = useState<string | null>(null);
+  const [reviewing, setReviewing] = useState(false);
   const titleRef = useRef<HTMLInputElement>(null);
   const subtaskInputRef = useRef<HTMLInputElement>(null);
 
@@ -43,6 +54,7 @@ export default function TaskCard({
   const totalCount = task.subtasks.length;
   const hasSubtasks = totalCount > 0;
   const allDone = hasSubtasks && completedCount === totalCount;
+  const hasSolutions = task.subtasks.some((s) => s.llm_response);
 
   // Only show response card when explicitly requested via LLM-Call button
   const activeResponse = showLLMFor
@@ -184,7 +196,7 @@ export default function TaskCard({
             </div>
 
             {/* Actions */}
-            <div className="flex gap-1.5 flex-shrink-0">
+            <div className="flex gap-1.5 flex-shrink-0 flex-wrap">
               {hasSubtasks && (
                 <button
                   onClick={() => setExpanded(!expanded)}
@@ -194,6 +206,44 @@ export default function TaskCard({
                   style={{ borderRadius: "var(--radius)" }}
                 >
                   {expanded ? "\u25B4" : "\u25BE"} {totalCount}
+                </button>
+              )}
+              {/* Download RESPONSE.md */}
+              {hasSolutions && (
+                <button
+                  onClick={() => onDownloadResponse(task.id)}
+                  className="btn-press font-mono text-[0.7rem] font-medium tracking-wider uppercase
+                    px-3 py-1.5 border-2 border-ink bg-transparent text-ink
+                    hover:bg-ink hover:text-bg cursor-pointer transition-colors duration-150"
+                  style={{ borderRadius: "var(--radius)" }}
+                  title="Download RESPONSE.md with all solutions"
+                >
+                  .md
+                </button>
+              )}
+              {/* Final Review */}
+              {hasSolutions && (
+                <button
+                  onClick={async () => {
+                    setReviewing(true);
+                    setReviewShown(true);
+                    try {
+                      onReview(task.id);
+                    } finally {
+                      setReviewing(false);
+                    }
+                  }}
+                  disabled={reviewing}
+                  className={`btn-press font-mono text-[0.7rem] font-medium tracking-wider uppercase
+                    px-3 py-1.5 border-2 cursor-pointer transition-colors duration-150
+                    ${reviewing
+                      ? "border-accent bg-accent text-white cursor-wait"
+                      : "border-accent bg-transparent text-accent hover:bg-accent hover:text-white"
+                    }`}
+                  style={{ borderRadius: "var(--radius)" }}
+                  title="Run Final Reviewer agent on all solutions"
+                >
+                  {reviewing ? "Reviewing..." : "Review"}
                 </button>
               )}
               {!editing && (
@@ -232,12 +282,14 @@ export default function TaskCard({
                   key={subtask.id}
                   subtask={subtask}
                   index={i}
+                  agents={agents}
                   onToggle={(sid, completed) => onSubtaskToggle(task.id, sid, completed)}
                   onLLMCall={(sid, title) => {
                     onLLMCall(task.id, sid, title);
                     setShowLLMFor(sid);
                   }}
                   onDelete={(sid) => onSubtaskDelete(task.id, sid)}
+                  onAgentChange={(sid, agentId) => onSubtaskAgentChange(task.id, sid, agentId)}
                 />
               ))}
 

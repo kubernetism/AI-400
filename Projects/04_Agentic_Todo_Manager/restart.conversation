@@ -1,1 +1,2 @@
 claude --resume 5ff0df65-df5e-44ae-9beb-aec105e54d91 
+claude --resume "k8s-deployment-task-manager"
