@@ -1,23 +1,28 @@
 "use client";
 
 import { useState, useRef } from "react";
+import type { AgentInfo } from "./types";
 
 interface SubtaskDraft {
   id: string;
   title: string;
+  agent_id: string;
 }
 
 interface AddTaskFormProps {
-  onAdd: (title: string, subtasks: string[]) => void;
+  onAdd: (title: string, subtasks: { title: string; agent_id: string }[]) => void;
+  agents: AgentInfo[];
 }
 
-export default function AddTaskForm({ onAdd }: AddTaskFormProps) {
+export default function AddTaskForm({ onAdd, agents }: AddTaskFormProps) {
   const [title, setTitle] = useState("");
   const [subtasks, setSubtasks] = useState<SubtaskDraft[]>([]);
   const [subtaskInput, setSubtaskInput] = useState("");
   const [showSubtasks, setShowSubtasks] = useState(false);
   const titleRef = useRef<HTMLInputElement>(null);
   const subtaskRef = useRef<HTMLInputElement>(null);
+
+  const defaultAgent = agents.length > 0 ? agents[0].id : "";
 
   function handleTitleKeyDown(e: React.KeyboardEvent) {
     if (e.key === "Enter" && title.trim()) {
@@ -30,7 +35,10 @@ export default function AddTaskForm({ onAdd }: AddTaskFormProps) {
   function addSubtask() {
     const trimmed = subtaskInput.trim();
     if (!trimmed) return;
-    setSubtasks((prev) => [...prev, { id: crypto.randomUUID(), title: trimmed }]);
+    setSubtasks((prev) => [
+      ...prev,
+      { id: crypto.randomUUID(), title: trimmed, agent_id: defaultAgent },
+    ]);
     setSubtaskInput("");
     subtaskRef.current?.focus();
   }
@@ -39,13 +47,22 @@ export default function AddTaskForm({ onAdd }: AddTaskFormProps) {
     setSubtasks((prev) => prev.filter((s) => s.id !== id));
   }
 
+  function setSubtaskAgent(id: string, agent_id: string) {
+    setSubtasks((prev) =>
+      prev.map((s) => (s.id === id ? { ...s, agent_id } : s))
+    );
+  }
+
   function handleSubmit() {
     const trimmedTitle = title.trim();
     if (!trimmedTitle) {
       titleRef.current?.focus();
       return;
     }
-    onAdd(trimmedTitle, subtasks.map((s) => s.title));
+    onAdd(
+      trimmedTitle,
+      subtasks.map((s) => ({ title: s.title, agent_id: s.agent_id }))
+    );
     setTitle("");
     setSubtasks([]);
     setSubtaskInput("");
@@ -120,6 +137,22 @@ export default function AddTaskForm({ onAdd }: AddTaskFormProps) {
                   <span className="flex-1 text-sm font-mono text-ink truncate">
                     {s.title}
                   </span>
+                  {/* Agent selector */}
+                  {agents.length > 0 && (
+                    <select
+                      value={s.agent_id}
+                      onChange={(e) => setSubtaskAgent(s.id, e.target.value)}
+                      className="bg-paper border border-rule text-[0.6rem] font-mono
+                        tracking-wider px-1.5 py-0.5 text-ink cursor-pointer"
+                      style={{ borderRadius: "var(--radius)" }}
+                    >
+                      {agents.map((a) => (
+                        <option key={a.id} value={a.id}>
+                          {a.name}
+                        </option>
+                      ))}
+                    </select>
+                  )}
                   <button
                     onClick={() => removeSubtask(s.id)}
                     className="text-ink-light hover:text-accent text-sm cursor-pointer

@@ -1,21 +1,7 @@
 {
-  "a24cedcb-09a3-4407-9701-f9e2dc167bbc": {
-    "id": "a24cedcb-09a3-4407-9701-f9e2dc167bbc",
-    "title": "Learning k8s.",
-    "description": "",
-    "completed": true,
-    "subtasks": []
-  },
-  "64a7ebf8-2d69-40c5-84d0-1f66a08faea2": {
-    "id": "64a7ebf8-2d69-40c5-84d0-1f66a08faea2",
-    "title": "what is ConfigMap and Secrets in Kubernetes?",
-    "description": "",
-    "completed": true,
-    "subtasks": []
-  },
-  "56b5e338-3e83-4e28-819a-c5c336916341": {
-    "id": "56b5e338-3e83-4e28-819a-c5c336916341",
-    "title": "Designing a k8s Cluster>",
+  "9b7b531b-9213-44fb-a960-0b7cb66cce56": {
+    "id": "9b7b531b-9213-44fb-a960-0b7cb66cce56",
+    "title": "what is k8s?",
     "description": "",
     "completed": false,
     "subtasks": []

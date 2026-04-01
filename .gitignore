@@ -46,7 +46,8 @@ Projects/04_Agentic_Todo_Manager/restart.conversion
 Projects/04_Agentic_Todo_Manager/.claude
 .claude/
 .agents/
-
+Projects/04_Agentic_Todo_Manager/notification-api/.env
+Projects/04_Agentic_Todo_Manager/notification-api/.venv
 21_kubernetes_configmaps_secrets/kubernetes-video/node_modules
 21_kubernetes_configmaps_secrets/kubernetes-video/.venv
 21_kubernetes_configmaps_secrets/kubernetes-video/.env

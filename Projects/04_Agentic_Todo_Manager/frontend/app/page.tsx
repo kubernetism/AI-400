@@ -5,6 +5,7 @@ import type { Task, Subtask } from "./components/types";
 import TaskCard from "./components/task-card";
 import AddTaskForm from "./components/add-task-form";
 import Toast from "./components/toast";
+import NotificationPanel from "./components/notification-panel";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 const LLM_URL = process.env.NEXT_PUBLIC_LLM_URL || "http://localhost:8001";
@@ -341,6 +342,7 @@ export default function Home() {
               </svg>
               LLM-Powered
             </div>
+            <NotificationPanel />
           </div>
         </div>
       </nav>

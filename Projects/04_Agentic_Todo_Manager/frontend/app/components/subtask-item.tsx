@@ -1,22 +1,28 @@
 "use client";
 
-import type { Subtask } from "./types";
+import type { Subtask, AgentInfo } from "./types";
 
 interface SubtaskItemProps {
   subtask: Subtask;
   index: number;
+  agents: AgentInfo[];
   onToggle: (id: string, completed: boolean) => void;
   onLLMCall: (id: string, title: string) => void;
   onDelete: (id: string) => void;
+  onAgentChange: (id: string, agent_id: string) => void;
 }
 
 export default function SubtaskItem({
   subtask,
   index,
+  agents,
   onToggle,
   onLLMCall,
   onDelete,
+  onAgentChange,
 }: SubtaskItemProps) {
+  const agentName = agents.find((a) => a.id === subtask.agent_id)?.name;
+
   return (
     <div
       className="animate-slide-in"
@@ -71,6 +77,37 @@ export default function SubtaskItem({
           {subtask.title}
         </span>
 
+        {/* Agent selector / badge */}
+        {agents.length > 0 && (
+          subtask.llm_response ? (
+            // Show badge if already solved
+            agentName && (
+              <span
+                className="flex-shrink-0 text-[0.55rem] font-mono tracking-wider uppercase
+                  px-1.5 py-0.5 bg-done-bg text-done-ink border border-done-ink"
+                style={{ borderRadius: "var(--radius)" }}
+              >
+                {agentName}
+              </span>
+            )
+          ) : (
+            // Show dropdown if not yet solved
+            <select
+              value={subtask.agent_id || agents[0]?.id || ""}
+              onChange={(e) => onAgentChange(subtask.id, e.target.value)}
+              className="flex-shrink-0 bg-paper border border-rule text-[0.55rem] font-mono
+                tracking-wider px-1.5 py-0.5 text-ink cursor-pointer max-w-[120px]"
+              style={{ borderRadius: "var(--radius)" }}
+            >
+              {agents.map((a) => (
+                <option key={a.id} value={a.id}>
+                  {a.name}
+                </option>
+              ))}
+            </select>
+          )
+        )}
+
         {/* LLM Call Button */}
         <button
           onClick={() => onLLMCall(subtask.id, subtask.title)}
@@ -105,7 +142,7 @@ export default function SubtaskItem({
                 <path d="M6.5 6.5a1.5 1.5 0 112.5 1.5c0 .75-.75 1-1 1.5" strokeLinecap="round" />
                 <circle cx="8" cy="11.5" r="0.5" fill="currentColor" />
               </svg>
-              LLM-Call
+              Solve
             </>
           )}
         </button>
@@ -120,8 +157,6 @@ export default function SubtaskItem({
           &times;
         </button>
       </div>
-
-      {/* No inline preview — click the "Solved" button to view cached response */}
     </div>
   );
 }
