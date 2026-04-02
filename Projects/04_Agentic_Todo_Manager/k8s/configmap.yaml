@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+  namespace: todo-manager
+  labels:
+    app.kubernetes.io/part-of: agentic-todo-manager
+data:
+  # ── Internal service URLs (K8s DNS) ──
+  NOTIFICATION_URL: "http://notification-api:8002"
+
+  # ── Frontend build-time env vars ──
+  # These are baked into the Next.js build; for external access use Ingress hostname
+  NEXT_PUBLIC_API_URL: "http://backend:8000"
+  NEXT_PUBLIC_LLM_URL: "http://llm-call:8001"
+  NEXT_PUBLIC_NOTIFY_URL: "http://notification-api:8002"

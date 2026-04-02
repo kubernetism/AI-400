@@ -1,0 +1,39 @@
+services:
+  backend:
+    build: ./backend
+    ports:
+      - "8000:8000"
+    env_file:
+      - ./backend/.env
+    environment:
+      - NOTIFICATION_URL=http://notification-api:8002
+    depends_on:
+      - notification-api
+
+  llm-call:
+    build: ./llm-call
+    ports:
+      - "8001:8001"
+    env_file:
+      - ./llm-call/.env
+
+  notification-api:
+    build: ./notification-api
+    ports:
+      - "8002:8002"
+    env_file:
+      - ./notification-api/.env
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        NEXT_PUBLIC_API_URL: http://localhost:8000
+        NEXT_PUBLIC_LLM_URL: http://localhost:8001
+        NEXT_PUBLIC_NOTIFY_URL: http://localhost:8002
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+      - llm-call
+      - notification-api

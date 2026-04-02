@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: llm-call
+  namespace: todo-manager
+  labels:
+    app: llm-call
+    app.kubernetes.io/part-of: agentic-todo-manager
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: llm-call
+  template:
+    metadata:
+      labels:
+        app: llm-call
+    spec:
+      containers:
+        - name: llm-call
+          image: agentic-todo/llm-call:latest
+          ports:
+            - containerPort: 8001
+          env:
+            - name: OPENAI_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: OPENAI_API_KEY
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8001
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8001
+            initialDelaySeconds: 10
+            periodSeconds: 15
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: llm-call
+  namespace: todo-manager
+  labels:
+    app: llm-call
+spec:
+  selector:
+    app: llm-call
+  ports:
+    - port: 8001
+      targetPort: 8001
+      protocol: TCP
+  type: ClusterIP
