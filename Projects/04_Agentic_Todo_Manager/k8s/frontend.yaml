@@ -7,7 +7,7 @@ metadata:
     app: frontend
     app.kubernetes.io/part-of: agentic-todo-manager
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: frontend
@@ -18,7 +18,8 @@ spec:
     spec:
       containers:
         - name: frontend
-          image: agentic-todo/frontend:latest
+          image: agentic-todo/frontend:v2 
+          imagePullPolicy: Never
           ports:
             - containerPort: 3000
           readinessProbe:

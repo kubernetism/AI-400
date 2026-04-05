@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import type { Notification } from "./types";
 
 const NOTIFY_URL =
-  process.env.NEXT_PUBLIC_NOTIFY_URL || "http://localhost:8002";
+  process.env.NEXT_PUBLIC_NOTIFY_URL || "http://notification-api:8002";
 
 const TYPE_ICONS: Record<string, string> = {
   task_created: "+",
@@ -68,7 +68,7 @@ export default function NotificationPanel() {
         method: "PATCH",
       });
       setNotifications((prev) =>
-        prev.map((n) => (n.id === id ? { ...n, read: true } : n))
+        prev.map((n) => (n.id === id ? { ...n, read: true } : n)),
       );
       setUnreadCount((c) => Math.max(0, c - 1));
     } catch {
@@ -167,9 +167,7 @@ export default function NotificationPanel() {
                     ${n.read ? "opacity-50" : "bg-accent-bg/30 hover:bg-accent-bg/60"}`}
                 >
                   <div className="flex items-start gap-2">
-                    <span
-                      className="font-mono text-sm leading-none mt-0.5 text-accent w-4 text-center flex-shrink-0"
-                    >
+                    <span className="font-mono text-sm leading-none mt-0.5 text-accent w-4 text-center flex-shrink-0">
                       {TYPE_ICONS[n.type] || "•"}
                     </span>
                     <div className="flex-1 min-w-0">

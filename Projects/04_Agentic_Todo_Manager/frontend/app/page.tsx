@@ -7,12 +7,16 @@ import AddTaskForm from "./components/add-task-form";
 import Toast from "./components/toast";
 import NotificationPanel from "./components/notification-panel";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-const LLM_URL = process.env.NEXT_PUBLIC_LLM_URL || "http://localhost:8001";
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://backend:8000";
+const LLM_URL = process.env.NEXT_PUBLIC_LLM_URL || "http://llm-call:8001";
 
 type Filter = "all" | "pending" | "done";
 
-async function api<T>(method: string, path: string, body?: unknown): Promise<T> {
+async function api<T>(
+  method: string,
+  path: string,
+  body?: unknown,
+): Promise<T> {
   const res = await fetch(`${API_URL}${path}`, {
     method,
     headers: { "Content-Type": "application/json" },
@@ -52,7 +56,10 @@ export default function Home() {
       setError(null);
     } catch (e) {
       setApiOnline(false);
-      setError("Cannot reach API: " + (e instanceof Error ? e.message : "Unknown error"));
+      setError(
+        "Cannot reach API: " +
+          (e instanceof Error ? e.message : "Unknown error"),
+      );
     } finally {
       setLoading(false);
     }
@@ -99,7 +106,10 @@ export default function Home() {
 
   // ── Task CRUD ──
 
-  async function handleAdd(title: string, subtaskDrafts: { title: string; agent_id: string }[]) {
+  async function handleAdd(
+    title: string,
+    subtaskDrafts: { title: string; agent_id: string }[],
+  ) {
     const subtasks: Subtask[] = subtaskDrafts.map((st) => ({
       id: crypto.randomUUID(),
       title: st.title,
@@ -153,12 +163,16 @@ export default function Home() {
     try {
       const updated = await api<Task>("PATCH", `/tasks/${id}`, { completed });
       setTasks((prev) =>
-        prev.map((t) => (t.id === id ? { ...t, ...updated, subtasks: updated.subtasks || t.subtasks } : t))
+        prev.map((t) =>
+          t.id === id
+            ? { ...t, ...updated, subtasks: updated.subtasks || t.subtasks }
+            : t,
+        ),
       );
       showToast(completed ? "Marked done" : "Marked pending");
     } catch {
       setTasks((prev) =>
-        prev.map((t) => (t.id === id ? { ...t, completed } : t))
+        prev.map((t) => (t.id === id ? { ...t, completed } : t)),
       );
       showToast(completed ? "Marked done" : "Marked pending");
     }
@@ -178,38 +192,49 @@ export default function Home() {
     try {
       const updated = await api<Task>("PATCH", `/tasks/${id}`, { title });
       setTasks((prev) =>
-        prev.map((t) => (t.id === id ? { ...t, ...updated, subtasks: updated.subtasks || t.subtasks } : t))
+        prev.map((t) =>
+          t.id === id
+            ? { ...t, ...updated, subtasks: updated.subtasks || t.subtasks }
+            : t,
+        ),
       );
     } catch {
-      setTasks((prev) =>
-        prev.map((t) => (t.id === id ? { ...t, title } : t))
-      );
+      setTasks((prev) => prev.map((t) => (t.id === id ? { ...t, title } : t)));
     }
     showToast("Task updated");
   }
 
   // ── Subtask Operations ──
 
-  function updateSubtasksAndSave(taskId: string, updater: (subtasks: Subtask[]) => Subtask[]) {
+  function updateSubtasksAndSave(
+    taskId: string,
+    updater: (subtasks: Subtask[]) => Subtask[],
+  ) {
     let updatedSubtasks: Subtask[] = [];
     setTasks((prev) =>
       prev.map((t) => {
         if (t.id !== taskId) return t;
         updatedSubtasks = updater(t.subtasks);
         return { ...t, subtasks: updatedSubtasks };
-      })
+      }),
     );
     saveSubtasks(taskId, updatedSubtasks);
   }
 
-  function handleSubtaskToggle(taskId: string, subtaskId: string, completed: boolean) {
+  function handleSubtaskToggle(
+    taskId: string,
+    subtaskId: string,
+    completed: boolean,
+  ) {
     updateSubtasksAndSave(taskId, (subs) =>
-      subs.map((s) => (s.id === subtaskId ? { ...s, completed } : s))
+      subs.map((s) => (s.id === subtaskId ? { ...s, completed } : s)),
     );
   }
 
   function handleSubtaskDelete(taskId: string, subtaskId: string) {
-    updateSubtasksAndSave(taskId, (subs) => subs.filter((s) => s.id !== subtaskId));
+    updateSubtasksAndSave(taskId, (subs) =>
+      subs.filter((s) => s.id !== subtaskId),
+    );
     showToast("Subtask removed");
   }
 
@@ -223,17 +248,28 @@ export default function Home() {
     handleLLMCall(taskId, newId, title, defaultAgent);
   }
 
-  function handleSubtaskAgentChange(taskId: string, subtaskId: string, agentId: string) {
+  function handleSubtaskAgentChange(
+    taskId: string,
+    subtaskId: string,
+    agentId: string,
+  ) {
     updateSubtasksAndSave(taskId, (subs) =>
-      subs.map((s) => (s.id === subtaskId ? { ...s, agent_id: agentId } : s))
+      subs.map((s) => (s.id === subtaskId ? { ...s, agent_id: agentId } : s)),
     );
   }
 
   // ── LLM Call (with agent routing) ──
 
-  async function handleLLMCall(taskId: string, subtaskId: string, subtaskTitle: string, agentId?: string) {
+  async function handleLLMCall(
+    taskId: string,
+    subtaskId: string,
+    subtaskTitle: string,
+    agentId?: string,
+  ) {
     const currentTask = tasksRef.current.find((t) => t.id === taskId);
-    const currentSubtask = currentTask?.subtasks.find((s) => s.id === subtaskId);
+    const currentSubtask = currentTask?.subtasks.find(
+      (s) => s.id === subtaskId,
+    );
     if (currentSubtask?.llm_response) {
       showToast("Showing cached AI solution");
       return;
@@ -248,10 +284,10 @@ export default function Home() {
         return {
           ...t,
           subtasks: t.subtasks.map((s) =>
-            s.id === subtaskId ? { ...s, llm_loading: true } : s
+            s.id === subtaskId ? { ...s, llm_loading: true } : s,
           ),
         };
-      })
+      }),
     );
 
     try {
@@ -266,7 +302,11 @@ export default function Home() {
         body: JSON.stringify({ prompt, agent_id: resolvedAgent || null }),
       });
       if (!res.ok) throw new Error(`LLM error ${res.status}`);
-      const result = await res.json() as { response: string; agent_id: string; agent_name: string };
+      const result = (await res.json()) as {
+        response: string;
+        agent_id: string;
+        agent_name: string;
+      };
 
       setTasks((prev) =>
         prev.map((t) => {
@@ -275,11 +315,16 @@ export default function Home() {
             ...t,
             subtasks: t.subtasks.map((s) =>
               s.id === subtaskId
-                ? { ...s, llm_response: result.response, llm_loading: false, agent_id: result.agent_id }
-                : s
+                ? {
+                    ...s,
+                    llm_response: result.response,
+                    llm_loading: false,
+                    agent_id: result.agent_id,
+                  }
+                : s,
             ),
           };
-        })
+        }),
       );
 
       try {
@@ -298,10 +343,10 @@ export default function Home() {
           return {
             ...t,
             subtasks: t.subtasks.map((s) =>
-              s.id === subtaskId ? { ...s, llm_loading: false } : s
+              s.id === subtaskId ? { ...s, llm_loading: false } : s,
             ),
           };
-        })
+        }),
       );
       showToast("LLM call failed");
     }
@@ -363,7 +408,7 @@ export default function Home() {
         }),
       });
       if (!res.ok) throw new Error("Review failed");
-      const result = await res.json() as { response: string };
+      const result = (await res.json()) as { response: string };
 
       // Save review as a special subtask called "Final Review"
       const reviewId = crypto.randomUUID();
@@ -371,7 +416,9 @@ export default function Home() {
         prev.map((t) => {
           if (t.id !== taskId) return t;
           // Remove any existing review subtask
-          const filtered = t.subtasks.filter((s) => s.title !== "--- Final Review ---");
+          const filtered = t.subtasks.filter(
+            (s) => s.title !== "--- Final Review ---",
+          );
           return {
             ...t,
             subtasks: [
@@ -385,7 +432,7 @@ export default function Home() {
               },
             ],
           };
-        })
+        }),
       );
 
       // Persist
@@ -401,7 +448,8 @@ export default function Home() {
   // ── Filtering ──
 
   const filtered = tasks.filter((t) => {
-    const allSubtasksDone = t.subtasks.length > 0 && t.subtasks.every((s) => s.completed);
+    const allSubtasksDone =
+      t.subtasks.length > 0 && t.subtasks.every((s) => s.completed);
     const isDone = t.completed || allSubtasksDone;
     if (filter === "pending") return !isDone;
     if (filter === "done") return isDone;
@@ -420,9 +468,7 @@ export default function Home() {
   return (
     <div className="pb-20">
       {/* Sticky Navbar */}
-      <nav
-        className="sticky top-0 z-40 bg-bg/95 backdrop-blur-sm border-b-[3px] border-ink"
-      >
+      <nav className="sticky top-0 z-40 bg-bg/95 backdrop-blur-sm border-b-[3px] border-ink">
         <div className="max-w-[1120px] mx-auto px-5 py-3 flex items-center justify-between gap-4 flex-wrap">
           <div className="flex items-center gap-4">
             <h1 className="font-display text-[clamp(1.8rem,4vw,2.8rem)] leading-[0.9] tracking-wide text-ink">
@@ -439,7 +485,9 @@ export default function Home() {
               style={{ borderRadius: "var(--radius)" }}
             >
               API{" "}
-              <span style={{ color: apiOnline ? "#90EE90" : "#ff6b6b" }}>&#9679;</span>{" "}
+              <span style={{ color: apiOnline ? "#90EE90" : "#ff6b6b" }}>
+                &#9679;
+              </span>{" "}
               <span className="text-bg/70">{displayUrl}</span>
             </div>
             <div
@@ -447,9 +495,19 @@ export default function Home() {
                 px-2.5 py-1 whitespace-nowrap font-mono flex items-center gap-1.5"
               style={{ borderRadius: "var(--radius)" }}
             >
-              <svg width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
+              <svg
+                width="10"
+                height="10"
+                viewBox="0 0 16 16"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.5"
+              >
                 <circle cx="8" cy="8" r="6.5" />
-                <path d="M6.5 6.5a1.5 1.5 0 112.5 1.5c0 .75-.75 1-1 1.5" strokeLinecap="round" />
+                <path
+                  d="M6.5 6.5a1.5 1.5 0 112.5 1.5c0 .75-.75 1-1 1.5"
+                  strokeLinecap="round"
+                />
                 <circle cx="8" cy="11.5" r="0.5" fill="currentColor" />
               </svg>
               {agents.length > 0 ? `${agents.length} Agents` : "LLM-Powered"}
@@ -497,9 +555,10 @@ export default function Home() {
                 className={`font-mono text-[0.65rem] tracking-[0.1em] uppercase
                   px-3 py-1 rounded-full border-[1.5px] cursor-pointer
                   transition-all duration-150
-                  ${filter === f.key
-                    ? "bg-ink text-bg border-ink"
-                    : "bg-transparent text-ink-light border-rule hover:bg-ink hover:text-bg hover:border-ink"
+                  ${
+                    filter === f.key
+                      ? "bg-ink text-bg border-ink"
+                      : "bg-transparent text-ink-light border-rule hover:bg-ink hover:text-bg hover:border-ink"
                   }`}
               >
                 {f.label}
