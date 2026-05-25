@@ -1,0 +1,66 @@
+# Stable deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-stable-deploy
+  labels:
+    app: web
+    version: stable
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: web
+      version: stable
+  template:
+    metadata:
+      labels:
+        app: web
+        version: stable
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:1.25
+        ports:
+        - containerPort: 80
+
+---
+# Canary deployment (small percentage of traffic)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-canary-deploy
+  labels:
+    app: web
+    version: canary
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: web
+      version: canary
+  template:
+    metadata:
+      labels:
+        app: web
+        version: canary
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:1.25
+        ports:
+        - containerPort: 80
+
+---
+# Service points to stable by default. To promote canary, update selector or use a service-mesh for weighted split.
+apiVersion: v1
+kind: Service
+metadata:
+  name: web
+spec:
+  selector:
+    app: web
+    version: stable
+  ports:
+  - port: 80
+    targetPort: 80
