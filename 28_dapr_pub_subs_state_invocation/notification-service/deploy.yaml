@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: notification-service
+  labels:
+    app: notification-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: notification-service
+  template:
+    metadata:
+      labels:
+        app: notification-service
+      annotations:
+        dapr.io/enabled: "true"
+        dapr.io/app-id: "notification-service"
+        dapr.io/app-port: "8001"
+    spec:
+      containers:
+        - name: app
+          image: notification-service:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8001
