@@ -1,0 +1,19 @@
+# hello-cron-scaler.yaml
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: hello-cron
+  namespace: default
+spec:
+  scaleTargetRef:
+    name: hello
+  minReplicaCount: 0
+  maxReplicaCount: 1
+  cooldownPeriod: 30 # essential for fast cron demos — see callout below
+  triggers:
+    - type: cron
+      metadata:
+        timezone: Asia/Karachi
+        start: "*/1 * * * *" # Wake every 1 minute
+        end: "1-59/5 * * * *" # Sleep 2 minutes after waking
+        desiredReplicas: "1"

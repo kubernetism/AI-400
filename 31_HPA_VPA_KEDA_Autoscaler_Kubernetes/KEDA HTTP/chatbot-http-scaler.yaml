@@ -1,0 +1,24 @@
+# chatbot-http-scaler.yaml
+apiVersion: http.keda.sh/v1alpha1
+kind: HTTPScaledObject
+metadata:
+  name: chatbot
+  namespace: default
+spec:
+  hosts:
+    - chatbot.example.com
+  scaleTargetRef:
+    name: chatbot
+    kind: Deployment
+    apiVersion: apps/v1
+    service: chatbot
+    port: 8000
+  replicas:
+    min: 0
+    max: 5
+  scaledownPeriod: 60 # lowered from default 300s for class demo — see callout
+  scalingMetric:
+    requestRate:
+      granularity: 1s
+      targetValue: 10
+      window: 30s

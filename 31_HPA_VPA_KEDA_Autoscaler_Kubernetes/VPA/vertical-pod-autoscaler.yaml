@@ -1,0 +1,21 @@
+apiVersion: autoscaling.k8s.io/v1
+kind: VerticalPodAutoscaler
+metadata:
+  name: task-api-vpa
+  namespace: task-api
+spec:
+  targetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: task-api
+  updatePolicy:
+    updateMode: "Off" # Recommendations only
+  resourcePolicy:
+    containerPolicies:
+      - containerName: task-api
+        minAllowed:
+          cpu: 100m
+          memory: 128Mi
+        maxAllowed:
+          cpu: 2
+          memory: 2Gi
